@@ -10,13 +10,25 @@ let connectedUser = [] as any;
 let tracking = new TrackingUser();
 
 function notifyUser(receiveUserId: any, data: any) {
-    if (_.has(connectedUser, receiveUserId)) {
-        console.log('User receive nofti: ', receiveUserId);
-        connectedUser[receiveUserId].notifyClient(data);
-    }
+    console.log('Noti');
+    connectedUser.map((e: any) => {
+        e.notifyClient('Hello World');
+    });
+
+    // if (_.has(connectedUser, receiveUserId)) {
+    //     console.log('User receive nofti: ', receiveUserId);
+    //     connectedUser[receiveUserId].notifyClient(data);
+    // }
 }
 
 function onConnection(socket: any) {
+    console.log('New user connected');
+    // console.log(socket);
+    connectedUser[socket.id] = new ClientUser(socket.id);
+    connectedUser[socket.id].registerSocket(socket);
+    tracking.addUserConnecting(socket.id, socket.id);
+
+    // console.log(connectedUser);
     socket.on(EventTypes.AUTHENTICATE, async (token: any) => {
         console.log('Has a new connection', socket.id);
         console.log('Connected User', connectedUser);

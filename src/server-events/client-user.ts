@@ -8,8 +8,8 @@ class ClientUser {
     private userData: any;
 
     constructor(userId: ObjectId) {
-        this.sockets = {} as any;
-        this.userData = {} as any;
+        this.sockets = [] as any;
+        this.userData = [] as any;
         this.userData = userId;
         // UserService.getOne(userId).then((data: any) => (this.userData = data));
         this.onDisconnect = this.onDisconnect.bind(this);

@@ -4,9 +4,15 @@ import _ from 'lodash';
 
 import { Request, Response, ServiceType } from '../types';
 import { Controller } from './controller';
-import { UploadService, AuthService, MailService, ContactService } from '../services';
+import {
+    UploadService,
+    AuthService,
+    MailService,
+    ContactService,
+} from '../services';
 import { User } from '../models/user.model';
 import { UPLOAD_DIR, EMAIL_SENDER } from '../config';
+import { ServerEventSystem } from '../server-events';
 
 @injectable()
 export class ContactController extends Controller {
@@ -18,13 +24,16 @@ export class ContactController extends Controller {
     ) {
         super();
 
-        this.router.post('/', this.relayContact.bind(this));
+        this.router.get('/', this.relayContact.bind(this));
     }
 
     async relayContact(req: Request, res: Response) {
         try {
-            await this.contactService.insert(req.body);
-            res.composer.success('OK');
+            ServerEventSystem.notifyUser('5eb14ca56ff46324e4184f3f', 'Hi all!');
+
+            res.composer.success(
+                ServerEventSystem.tracking.getUserConnecting(),
+            );
         } catch (error) {
             console.log(error);
             res.composer.badRequest(error.message);

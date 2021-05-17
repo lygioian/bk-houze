@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import useragent from 'express-useragent';
 import http from 'http';
-import socketIO from 'socket.io';
+import socketIoInit from 'socket.io';
 import { ServerEventSystem } from './server-events';
 
 import { Controller } from './controllers';
@@ -12,14 +12,15 @@ import { SERVICE_NAME, STATIC_DIR } from './config';
 
 class App {
     public app: any;
+    public server: any;
     public port: number;
 
     constructor(controllers: Controller[], port: number, middlewares: any[]) {
         this.app = express();
         this.port = port;
 
-        this.initializeControllers(controllers);
         this.initializeMiddlewares(middlewares);
+        this.initializeControllers(controllers);
     }
 
     private initializeMiddlewares(middlewares: any[]) {
@@ -32,11 +33,6 @@ class App {
         this.app.use('/static', express.static(STATIC_DIR));
 
         middlewares.forEach((m) => this.app.use(m));
-
-        this.app = http.createServer(this.app);
-        const socketIOServer = (socketIO as any)(this.app);
-
-        ServerEventSystem.initialize(socketIOServer);
     }
 
     public applyExternalMiddleware(middleware: any) {
@@ -50,7 +46,26 @@ class App {
     }
 
     public listen() {
-        this.app.listen(this.port, () => {
+        this.server = http.createServer(this.app);
+        // this.server.listen(this.port);
+        // this.server.on('error', () => {
+        //     console.log('Err');
+        // });
+        // this.server.on('listening', () => {
+        //     console.log(`[${SERVICE_NAME}] listening on the port ${this.port}`);
+        // });
+        let io = require('socket.io')(this.server, {
+            cors: {
+                origin: '*',
+                methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+                preflightContinue: false,
+                optionsSuccessStatus: 204,
+            },
+        });
+
+        ServerEventSystem.initialize(io);
+
+        this.server.listen(this.port, () => {
             console.log(`[${SERVICE_NAME}] listening on the port ${this.port}`);
         });
     }
