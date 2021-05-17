@@ -6,6 +6,7 @@ import { BundleService } from './bundle.service';
 import { UploadService } from './upload.service';
 import { MailService } from './mail.service';
 import { ContactService } from './contact.service';
+import { HomeService } from './home.service';
 
 export {
     AuthService,
@@ -16,4 +17,5 @@ export {
     MailService,
     ContactService,
     MQTTService,
+    HomeService,
 };

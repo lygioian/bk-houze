@@ -14,6 +14,7 @@ import {
     MailService,
     ContactService,
     MQTTService,
+    HomeService,
 } from './services';
 import {
     AuthController,
@@ -22,6 +23,7 @@ import {
     MeController,
     UploadController,
     ContactController,
+    HomeController,
 } from './controllers';
 import { ServiceType } from './types';
 
@@ -58,6 +60,10 @@ container
     .bind<ContactService>(ServiceType.Contact)
     .to(ContactService)
     .inSingletonScope();
+container
+    .bind<HomeService>(ServiceType.Home)
+    .to(HomeService)
+    .inSingletonScope();
 
 // Initialize service first
 Promise.all([
@@ -72,6 +78,7 @@ Promise.all([
             container.resolve<MeController>(MeController),
             container.resolve<UploadController>(UploadController),
             container.resolve<ContactController>(ContactController),
+            container.resolve<HomeController>(HomeController),
         ],
         SERVICE_PORT,
         [

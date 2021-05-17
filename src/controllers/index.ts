@@ -4,6 +4,7 @@ import { BundleController } from './bundle.controller';
 import { MeController } from './me.controller';
 import { UploadController } from './upload.controller';
 import { ContactController } from './contact.controller';
+import { HomeController } from './home.controller';
 
 import { Controller } from './controller';
 export {
@@ -14,4 +15,5 @@ export {
     MeController,
     UploadController,
     ContactController,
+    HomeController,
 };
