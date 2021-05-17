@@ -145,7 +145,6 @@ export class MeController extends Controller {
             'studentId',
         ];
         const userData = _.pick(req.body, PROFILE_KEYS);
-
         try {
             if (_.isEmpty(userData))
                 throw new Error(`Field name must be ${PROFILE_KEYS}`);

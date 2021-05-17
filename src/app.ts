@@ -2,21 +2,24 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import useragent from 'express-useragent';
+import http from 'http';
+import socketIO from 'socket.io';
+import { ServerEventSystem } from './server-events';
 
 import { Controller } from './controllers';
 
 import { SERVICE_NAME, STATIC_DIR } from './config';
 
 class App {
-    public app: express.Application;
+    public app: any;
     public port: number;
 
     constructor(controllers: Controller[], port: number, middlewares: any[]) {
         this.app = express();
         this.port = port;
 
-        this.initializeMiddlewares(middlewares);
         this.initializeControllers(controllers);
+        this.initializeMiddlewares(middlewares);
     }
 
     private initializeMiddlewares(middlewares: any[]) {
@@ -29,6 +32,11 @@ class App {
         this.app.use('/static', express.static(STATIC_DIR));
 
         middlewares.forEach((m) => this.app.use(m));
+
+        this.app = http.createServer(this.app);
+        const socketIOServer = (socketIO as any)(this.app);
+
+        ServerEventSystem.initialize(socketIOServer);
     }
 
     public applyExternalMiddleware(middleware: any) {
