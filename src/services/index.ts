@@ -8,6 +8,7 @@ import { MailService } from './mail.service';
 import { ContactService } from './contact.service';
 import { HomeService } from './home.service';
 
+import { RoomService} from './room.service';
 export {
     AuthService,
     UserService,
@@ -18,4 +19,5 @@ export {
     ContactService,
     MQTTService,
     HomeService,
+    RoomService,
 };

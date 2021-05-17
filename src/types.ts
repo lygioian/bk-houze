@@ -19,7 +19,8 @@ export const ServiceType = {
     Upload: Symbol.for('Upload'),
     Mail: Symbol.for('Mail'),
     Contact: Symbol.for('Contact'),
-    Home: Symbol.for('Home')
+    Home: Symbol.for('Home'),
+    Room: Symbol.for('Room'),
 };
 
 export enum PrivacyType {

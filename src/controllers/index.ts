@@ -6,6 +6,7 @@ import { UploadController } from './upload.controller';
 import { ContactController } from './contact.controller';
 import { HomeController } from './home.controller';
 
+import { RoomController } from './room.controller';
 import { Controller } from './controller';
 export {
     Controller,
@@ -16,4 +17,5 @@ export {
     UploadController,
     ContactController,
     HomeController,
+    RoomController,
 };
