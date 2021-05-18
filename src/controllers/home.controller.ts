@@ -31,7 +31,7 @@ export class HomeController extends Controller {
         this.router.patch('/:homeId/routine/:routineId', this.updateRoutine.bind(this));
         this.router.delete('/:homeId/routine/:routineId', this.deleteRoutine.bind(this));
         this.router.get('/:homeId/routine', this.getHomeRoutines.bind(this));
-        this.router.get('/:homeId/routine/:routineId', this.getHomeRoutineById.bind(this));
+        this.router.get('/routine/:routineId', this.getHomeRoutineById.bind(this));
     }
 
     async createHome(req: Request, res: Response) {
@@ -171,7 +171,7 @@ export class HomeController extends Controller {
                 homeId,
                 req.tokenMeta.userId,
                 );
-            const routines = await this.homeService.findRoutines(homeId);
+            const routines = await this.homeService.findRoutines({ home: homeId, isDeleted: false });
             res.composer.success(routines);
         } catch (error) {
             res.composer.badRequest(error.message);
@@ -179,11 +179,10 @@ export class HomeController extends Controller {
     }
 
     async getHomeRoutineById(req: Request, res: Response) {
-        const { routineId } = req.params;
-        const { homeId } = req.params;
+        const routineId = ObjectID.createFromHexString(req.params.routineId);
 
         try {
-            const routine = await this.homeService.findOneHomeRoutine(homeId, routineId);
+            const routine = await this.homeService.findOneHomeRoutine({ _id: routineId });
             if (!routine) {
                 res.composer.notFound('Routine not found');
             }
