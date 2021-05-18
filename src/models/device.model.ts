@@ -5,10 +5,24 @@ import _ from 'lodash';
 export class Device{
     readonly _id?: ObjectID;
     id: number;
-    createdAt: number;
     name: string;
     data: string;
     unit: string;
+    createdAt: number;
+    createdBy: ObjectID;
+    isDeleted: boolean;
+    room?: ObjectID;
 }
 
-
+export function fillDefaultDeviceValue(device: Device): Device {
+    return _.merge(
+        {
+            name: '',
+            data: '',
+            unit: '',
+            createdAt: Math.floor(Date.now() / 1000),
+            isDeleted: false,
+        },
+        device,
+    );
+}

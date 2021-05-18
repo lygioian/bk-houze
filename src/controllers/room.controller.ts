@@ -25,8 +25,10 @@ export class RoomController extends Controller {
         this.router.delete('/:roomId', this.deleteRoom.bind(this));
         this.router.get('/', this.getRooms.bind(this));
         this.router.get('/:name', this.getRoomDetail.bind(this));
-        this.router.post('/:name', this.addDevice.bind(this))
-        
+        this.router.post('/:name', this.addDevice.bind(this));
+        this.router.post('/:roomId/device', this.addDevice.bind(this));
+        this.router.patch('/:roomId/device/:deviceId', this.updateDevice.bind(this));
+        this.router.delete('/:roomId/device/:deviceId', this.deleteDevice);
     }
 
 
@@ -98,7 +100,21 @@ async getRooms(req: Request, res: Response){
 }
 
 async addDevice(req: Request, res: Response){
-
+    try{
+        const roomId = ObjectID.createFromHexString(req.params.roomId);
+        await this.roomService.validateRoom(
+            roomId,
+            req.tokenMeta.userId,
+        );
+        const position = +req.body.position;
+        const addedDevice = await this.roomService.addDevice(
+            roomId,
+            position,
+        );
+        res.composer.success(addedDevice);
+    } catch (error) {
+        res.composer.badRequest(error.message)
+    }
 }
 
 async updateDevice(req: Request, res: Response){

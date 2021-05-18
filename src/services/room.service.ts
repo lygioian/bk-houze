@@ -14,7 +14,10 @@ import {
     Room,
     fillDefaultRoomValue,
 } from '../models/room.model';
-
+import {
+    Device,
+    fillDefaultDeviceValue,
+} from '../models/device.model'
 import {
     HASH_ROUNDS,
     SocialAccountType,
@@ -25,12 +28,13 @@ import {
 @injectable()
 export class RoomService {
     private roomCollection: Collection;
-
+    private deviceCollection: Collection;
     constructor(
         @inject(ServiceType.Database) private dbService: DatabaseService,
     ) {
         console.log('[Room service] Construct');
-        this.roomCollection = this.dbService.db.collection('rooms')
+        this.roomCollection = this.dbService.db.collection('rooms');
+        this.deviceCollection = this.dbService.db.collection('devices');
     }
 
     async create(room: any): Promise<Room> {
@@ -71,4 +75,41 @@ export class RoomService {
         return keepAll ? room : (_.omit(room) as Room);
     }
 
+    async addDevice(roomId: ObjectID, position: number = - 1){
+        const opDeviceInsertResult = await this.deviceCollection.insertOne(
+            fillDefaultDeviceValue( { room: roomId } as Device),
+        )
+        const insertedDevice = opDeviceInsertResult.ops[0] as Device;
+        const affectedRoom = await this.roomCollection.updateOne(
+            { _id: roomId},
+            {
+                $push: {
+                    devices: {
+                        $each: [insertedDevice._id],
+                        ...(position >= 0 && { $position: position}),
+                    },
+                },
+            },
+        );
+        if (affectedRoom.modifiedCount == 0)  throw new Error('Unable to add device to this room');
+        return { ... insertedDevice};
+    }
+
+    async updateDevice(deviceId: ObjectID, data: any){
+        const opUpdateResult = await this.deviceCollection.updateOne({ _id: deviceId }, {$set: data});
+        return opUpdateResult.result.nModified;
+    }
+
+    async deleteRoutine(roomId: ObjectID, deviceId: ObjectID){
+        const deletedCount = await this.updateDevice(deviceId, { isDeleted: true});
+        if (deletedCount == 0) throw new Error('Unable to delete device');
+        const opResult = await this.deviceCollection.updateOne(
+            { _id: roomId},
+            {
+                $pull: { devices: deviceId},
+            },
+        );
+        if (opResult.result.nModified == 0) throw new Error('Unable to delete device in the room');
+        return opResult.result.nModified;
+    }
 }
