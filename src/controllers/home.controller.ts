@@ -29,6 +29,7 @@ export class HomeController extends Controller {
         this.router.get('/:name', this.getByName.bind(this));
         this.router.post('/:homeId/routine', this.createRountine.bind(this));
         this.router.patch('/:homeId/routine/:routineId', this.updateRoutine.bind(this));
+        this.router.delete('/:homeId/routine/:routineId', this.deleteRoutine.bind(this));
     }
 
     async createHome(req: Request, res: Response) {
@@ -36,7 +37,7 @@ export class HomeController extends Controller {
         home.createdBy = req.tokenMeta.userId;
 
         try {
-            const createdHome = await this.homeService.createHome(home);
+            const createdHome = await this.homeService.create(home);
             res.composer.success('Home created');
         } catch (error) {
             res.composer.badRequest(error.message);
@@ -46,11 +47,11 @@ export class HomeController extends Controller {
     async updateHome(req: Request, res: Response) {
         try {
             const homeId = ObjectID.createFromHexString(req.params.homeId);
-            await this.homeService.validateHome(
+            await this.homeService.validate(
                 homeId,
                 req.tokenMeta.userId,
             );
-            const affectedCount = await this.homeService.updateHome(
+            const affectedCount = await this.homeService.update(
                 homeId,
                 _.pick(req.body, ['name', 'address']),
             );
@@ -66,9 +67,9 @@ export class HomeController extends Controller {
             const { userId } = req.tokenMeta;
 
             const homeId = ObjectID.createFromHexString(req.params.homeId);
-            await this.homeService.validateHome(homeId, userId);
-            const affectedCount = await this.homeService.deleteHome(homeId);
-            this.homeService.updateHomeCount(userId);
+            await this.homeService.validate(homeId, userId);
+            const affectedCount = await this.homeService.delete(homeId);
+            this.homeService.updateCount(userId);
 
             if (affectedCount == 0) throw new Error('Home already deleted');
 
@@ -80,7 +81,7 @@ export class HomeController extends Controller {
 
     async getHomes(req: Request, res: Response) {
         try {
-            const homes = await this.homeService.findHomes();
+            const homes = await this.homeService.find();
             res.composer.success(homes);
         } catch (error) {
             res.composer.badRequest(error.message);
@@ -92,7 +93,7 @@ export class HomeController extends Controller {
         const { userId: tokenUserId } = req.tokenMeta;
 
         try {
-            const home = await this.homeService.findOneHome({ name });
+            const home = await this.homeService.findOne({ name });
             if (!home) {
                 res.composer.notFound('User not found');
             }
@@ -105,7 +106,7 @@ export class HomeController extends Controller {
     async createRountine(req: Request, res: Response) {
         try {
             const homeId = ObjectID.createFromHexString(req.params.homeId);
-            await this.homeService.validateHome(
+            await this.homeService.validate(
                 homeId,
                 req.tokenMeta.userId,
             );
@@ -124,7 +125,7 @@ export class HomeController extends Controller {
     async updateRoutine(req: Request, res: Response) {
         try {
             const homeId = ObjectID.createFromHexString(req.params.homeId);
-            await this.homeService.validateHome(
+            await this.homeService.validate(
                 homeId,
                 req.tokenMeta.userId,
             );
@@ -133,6 +134,26 @@ export class HomeController extends Controller {
             const affectedCount = await this.homeService.updateRoutine(
                 routineId,
                 _.pick(req.body, ['config']),
+            );
+
+            res.composer.success(affectedCount);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    async deleteRoutine(req: Request, res: Response) {
+        try {
+            const homeId = ObjectID.createFromHexString(req.params.homeId);
+            await this.homeService.validate(
+                homeId,
+                req.tokenMeta.userId,
+            );
+
+            const routineId = ObjectID.createFromHexString(req.params.routineId);
+            const affectedCount = await this.homeService.deleteRoutine(
+                homeId,
+                routineId,
             );
 
             res.composer.success(affectedCount);

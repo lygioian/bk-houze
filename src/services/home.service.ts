@@ -41,7 +41,7 @@ export class HomeService {
         this.routineCollection = this.dbService.db.collection('routine');
     }
 
-    async createHome(home: any): Promise<Home> {
+    async create(home: any): Promise<Home> {
         if (_.isEmpty(home.name) || _.isEmpty(home.password)) {
             throw new ErrorHomeInvalid('Missing input fields');
         }
@@ -53,23 +53,23 @@ export class HomeService {
         return addedHome.ops[0] as Home;
     }
 
-    async updateHome(homeId: ObjectID, data: any) {
+    async update(homeId: ObjectID, data: any) {
         const opUpdateResult = await this.homeCollection.updateOne({ _id: homeId }, { $set: data });
         return opUpdateResult.result.nModified;
     }
 
-    async validateHome(homeId: ObjectId, userId: ObjectId) {
+    async validate(homeId: ObjectId, userId: ObjectId) {
         const home = await this.homeCollection.findOne({ _id: homeId, createdBy: userId });
         if (_.isEmpty(home)) throw new ErrorHomeInvalid('Home not found');
 
         return true;
     }
 
-    async deleteHome(homeId: ObjectID) {
-        return this.updateHome(homeId, { isDeleted: true });
+    async delete(homeId: ObjectID) {
+        return this.update(homeId, { isDeleted: true });
     }
 
-    async updateHomeCount(userId: ObjectId) {
+    async updateCount(userId: ObjectId) {
         return await this.userService.updateOne(userId, {
             homeCount: await this.homeCollection.countDocuments({
                 user: userId,
@@ -79,12 +79,12 @@ export class HomeService {
         });
     }
 
-    async findHomes(query: any = {}) {
+    async find(query: any = {}) {
         const homes = await this.homeCollection.find({"isDeleted": false}).toArray();
         return homes.map((home) => _.omit(home));
     }
 
-    async findOneHome(query: any = {}, keepAll = false): Promise<Home> {
+    async findOne(query: any = {}, keepAll = false): Promise<Home> {
         const home = (await this.homeCollection.findOne(query)) as Home;
 
         if (_.isEmpty(home)) throw new ErrorHomeInvalid('User not found');
@@ -110,7 +110,7 @@ export class HomeService {
             },
         );
 
-        if (affectedHome.modifiedCount == 0) throw new Error('Unable to add file to bundle');
+        if (affectedHome.modifiedCount == 0) throw new Error('Unable to add routine to home');
 
         return { ...insertedRoutine};
     }
@@ -118,5 +118,20 @@ export class HomeService {
     async updateRoutine(routineId: ObjectID, data: any) {
         const opUpdateResult = await this.routineCollection.updateOne({ _id: routineId }, { $set: data });
         return opUpdateResult.result.nModified;
+    }
+
+    async deleteRoutine(homeId: ObjectID, routineId: ObjectID) {
+        const deletedCount = await this.updateRoutine(routineId, { isDeleted: true });
+        if (deletedCount == 0) throw new Error('Unable to delete routine');
+
+        const opResult = await this.homeCollection.updateOne(
+            { _id: homeId },
+            {
+                $pull: { routines: routineId },
+            },
+        );
+
+        if (opResult.result.nModified == 0) throw new Error('Unable to delete routine in home');
+        return opResult.result.nModified;
     }
 }
