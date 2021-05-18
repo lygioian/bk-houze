@@ -112,6 +112,11 @@ export class RoomService {
         if (opResult.result.nModified == 0) throw new Error('Unable to delete device in the room');
         return opResult.result.nModified;
     }
+
+    async findDevices(roomId: ObjectID){
+        const devices = await this.deviceCollection.find(({"isDeleted": false, "room": roomId})).toArray();
+        return devices.map((device) => _.omit(device));
+    }
 }
 
 
