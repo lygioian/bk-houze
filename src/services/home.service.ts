@@ -135,13 +135,13 @@ export class HomeService {
         return opResult.result.nModified;
     }
 
-    async findRoutines(homeId: ObjectID) {
-        const routines = await this.routineCollection.find({"isDeleted": false, "home": homeId}).toArray();
+    async findRoutines(query: any = {}) {
+        const routines = await this.routineCollection.find(query).toArray();
         return routines.map((routine) => _.omit(routine));
     }
 
-    async findOneHomeRoutine(homeId: ObjectID, routineId: ObjectID, keepAll = false): Promise<Routine> {
-        const routine = (await this.routineCollection.findOne({"_id": routineId, "home": homeId})) as Routine;
+    async findOneHomeRoutine(query: any = {}, keepAll = false): Promise<Routine> {
+        const routine = (await this.routineCollection.findOne(query)) as Routine;
 
         if (_.isEmpty(routine)) throw new ErrorRoutineInvalid('Routine not found');
         return keepAll ? routine : (_.omit(routine) as Routine);
