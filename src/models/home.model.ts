@@ -2,6 +2,17 @@ import { ObjectID } from 'mongodb';
 import _ from 'lodash';
 import { User } from './user.model';
 
+export interface Routine {
+    readonly _id?: ObjectID;
+    config: { 
+        deviceId: ObjectID;
+        value: number;
+    }
+    createdAt: number;
+    createdBy: string;
+    home?: ObjectID;
+}
+
 export interface Home {
     readonly _id?: ObjectID;
     name: string;
@@ -9,7 +20,8 @@ export interface Home {
     password: string;
     createdAt: number;
     createdBy: ObjectID;
-    routine: { createdAt: number; createdBy: string; config: { deviceId: ObjectID; value: number }; }[];
+    isDeleted: boolean;
+    routines: Routine[];
     user: User[];
     room: [];
 }
@@ -17,11 +29,29 @@ export interface Home {
 export function fillDefaultHomeValue(home: Home): Home {
     return _.merge(
         {
-            createdAt: Math.floor(Date.now() / 1000),
             name: '',
             password: '',
+            address: '',
+            routines: [],
+            isDeleted: false,
+            createdAt: Math.floor(Date.now() / 1000),
         },
         home,
     );
 }
+
+export function fillDefaultRoutineValue(routine: Routine): Routine {
+    return _.merge(
+        {
+            config: {
+                deviceId: '',
+                value: ''
+            },
+            isDeleted: false,
+            createdAt: Math.floor(Date.now() / 1000),
+        },
+        routine,
+    );
+}
+
 

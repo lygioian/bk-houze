@@ -20,3 +20,12 @@ export class ErrorRoomInvalid extends Error {
     public static readonly code = 'room/invalid';
     message = 'Invalid Room';
 }
+export class ErrorHomeInvalid extends Error {
+    public static readonly code = 'home/invalid';
+    message = 'Invalid Home';
+}
+
+export class ErrorRoutineInvalid extends Error {
+    public static readonly code = 'routine/invalid';
+    message = 'Invalid Routine';
+}
