@@ -30,6 +30,8 @@ export class HomeController extends Controller {
         this.router.post('/:homeId/routine', this.createRountine.bind(this));
         this.router.patch('/:homeId/routine/:routineId', this.updateRoutine.bind(this));
         this.router.delete('/:homeId/routine/:routineId', this.deleteRoutine.bind(this));
+        this.router.get('/:homeId/routine', this.getHomeRoutines.bind(this));
+        this.router.get('/:homeId/routine/:routineId', this.getHomeRoutineById.bind(this));
     }
 
     async createHome(req: Request, res: Response) {
@@ -157,6 +159,35 @@ export class HomeController extends Controller {
             );
 
             res.composer.success(affectedCount);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    async getHomeRoutines(req: Request, res: Response) {
+        try {
+            const homeId = ObjectID.createFromHexString(req.params.homeId);
+            await this.homeService.validate(
+                homeId,
+                req.tokenMeta.userId,
+                );
+            const routines = await this.homeService.findRoutines(homeId);
+            res.composer.success(routines);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    async getHomeRoutineById(req: Request, res: Response) {
+        const { routineId } = req.params;
+        const { homeId } = req.params;
+
+        try {
+            const routine = await this.homeService.findOneHomeRoutine(homeId, routineId);
+            if (!routine) {
+                res.composer.notFound('Routine not found');
+            }
+            res.composer.success(routine);
         } catch (error) {
             res.composer.badRequest(error.message);
         }

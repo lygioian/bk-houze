@@ -8,7 +8,7 @@ import moment from 'moment';
 import { DatabaseService } from './database.service';
 import { UserService } from './user.service';
 import { ServiceType } from '../types';
-import { ErrorHomeInvalid } from '../lib/errors';
+import { ErrorHomeInvalid, ErrorRoutineInvalid } from '../lib/errors';
 import { lazyInject } from '../container';
 
 import {
@@ -133,5 +133,17 @@ export class HomeService {
 
         if (opResult.result.nModified == 0) throw new Error('Unable to delete routine in home');
         return opResult.result.nModified;
+    }
+
+    async findRoutines(homeId: ObjectID) {
+        const routines = await this.routineCollection.find({"isDeleted": false, "home": homeId}).toArray();
+        return routines.map((routine) => _.omit(routine));
+    }
+
+    async findOneHomeRoutine(homeId: ObjectID, routineId: ObjectID, keepAll = false): Promise<Routine> {
+        const routine = (await this.routineCollection.findOne({"_id": routineId, "home": homeId})) as Routine;
+
+        if (_.isEmpty(routine)) throw new ErrorRoutineInvalid('Routine not found');
+        return keepAll ? routine : (_.omit(routine) as Routine);
     }
 }
