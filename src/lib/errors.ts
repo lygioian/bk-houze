@@ -29,3 +29,8 @@ export class ErrorRoutineInvalid extends Error {
     public static readonly code = 'routine/invalid';
     message = 'Invalid Routine';
 }
+
+export class ErrorDeviceInvalid extends Error{
+    public static readonly code = 'device/invalid';
+    message = 'Invalid Device';
+}

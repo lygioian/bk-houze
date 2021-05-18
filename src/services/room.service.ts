@@ -8,7 +8,7 @@ import moment from 'moment';
 import { DatabaseService } from './database.service';
 import { ServiceType } from '../types';
 import { UserService } from './user.service';
-import { ErrorRoomInvalid, ErrorUserInvalid } from '../lib/errors';
+import { ErrorRoomInvalid, ErrorUserInvalid, ErrorDeviceInvalid } from '../lib/errors';
 import { lazyInject } from '../container'
 import {
     Room,
@@ -116,6 +116,12 @@ export class RoomService {
     async findDevices(roomId: ObjectID){
         const devices = await this.deviceCollection.find(({"isDeleted": false, "room": roomId})).toArray();
         return devices.map((device) => _.omit(device));
+    }
+
+    async findOneDeviceDetail(query: any = {}, keepAll = false): Promise<Device>{
+        const device = (await this.deviceCollection.findOne(query)) as Device;
+        if(_.isEmpty(device)) throw new ErrorDeviceInvalid('Device not found');
+        return keepAll ? device : (_.omit(device) as Device);
     }
 }
 

@@ -30,6 +30,7 @@ export class RoomController extends Controller {
         this.router.patch('/:roomId/device/:deviceId', this.updateDevice.bind(this));
         this.router.delete('/:roomId/device/:deviceId', this.deleteDevice.bind(this));
         this.router.get('/:roomId/device', this.getRoomDevices.bind(this));
+        this.router.get('/device/:deviceId',this.getRoomDeviceDetail.bind(this))
     }
 
 
@@ -170,7 +171,17 @@ async getRoomDevices(req: Request, res: Response){
 }
 
 async getRoomDeviceDetail(req: Request, res: Response){
+    const deviceId = ObjectID.createFromHexString(req.params.deviceId);
+    try {
+        const device = await this.roomService.findOneDeviceDetail({ _id: deviceId});
+        if(!device){
+            res.composer.notFound('Device not found');
+        }
+        res.composer.success(device);
 
+    } catch(error) {
+        res.composer.badRequest(error.message);
+    }
 }
 
 }
