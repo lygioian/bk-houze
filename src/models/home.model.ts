@@ -17,9 +17,10 @@ export interface Home {
 export function fillDefaultHomeValue(home: Home): Home {
     return _.merge(
         {
-            createdAt: Math.floor(Date.now() / 1000),
             name: '',
             password: '',
+            address: '',
+            createdAt: Math.floor(Date.now() / 1000),
         },
         home,
     );

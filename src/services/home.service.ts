@@ -6,9 +6,10 @@ import crypto from 'crypto';
 import moment from 'moment';
 
 import { DatabaseService } from './database.service';
+import { UserService } from './user.service';
 import { ServiceType } from '../types';
-
-import { ErrorUserInvalid } from '../lib/errors';
+import { ErrorHomeInvalid } from '../lib/errors';
+import { lazyInject } from '../container';
 
 import {
     Home,
@@ -27,6 +28,8 @@ import {
 export class HomeService {
     private homeCollection: Collection;
 
+    @lazyInject(ServiceType.User) private userService: UserService;
+
     constructor(
         @inject(ServiceType.Database) private dbService: DatabaseService,
     ) {
@@ -36,7 +39,7 @@ export class HomeService {
 
     async create(home: any): Promise<Home> {
         if (_.isEmpty(home.name) || _.isEmpty(home.password)) {
-            throw new ErrorUserInvalid('Missing input fields');
+            throw new ErrorHomeInvalid('Missing input fields');
         }
         home.password = await bcrypt.hash(home.password, HASH_ROUNDS);
         const addedHome = await this.homeCollection.insertOne(
@@ -44,5 +47,36 @@ export class HomeService {
         );
 
         return addedHome.ops[0] as Home;
+    }
+
+    async update(homeId: ObjectID, data: any) {
+        const opUpdateResult = await this.homeCollection.updateOne({ _id: homeId }, { $set: data });
+        return opUpdateResult.result.nModified;
+    }
+
+    async validateHome(homeId: ObjectId, userId: ObjectId) {
+        const home = await this.homeCollection.findOne({ _id: homeId, createdBy: userId });
+        if (_.isEmpty(home)) throw new ErrorHomeInvalid('Home not found');
+
+        return true;
+    }
+
+    async delete(homeId: ObjectID) {
+        return this.update(homeId, { isDeleted: true });
+    }
+
+    async updateHomeCount(userId: ObjectId) {
+        return await this.userService.updateOne(userId, {
+            homeCount: await this.homeCollection.countDocuments({
+                user: userId,
+                isDeleted: false,
+                'files.0': { $exists: true },
+            }),
+        });
+    }
+
+    async find(query: any = {}) {
+        const homes = await this.homeCollection.find(query).toArray();
+        return homes.map((home) => _.omit(home));
     }
 }
