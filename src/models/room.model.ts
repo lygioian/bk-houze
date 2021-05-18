@@ -8,6 +8,7 @@ export class Room{
     createdBy: ObjectID;
     devices: ObjectID[];
     isDeleted: boolean;
+    homeId: ObjectID;
 }
 
 export function fillDefaultRoomValue(room: Room): Room {

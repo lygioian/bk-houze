@@ -118,7 +118,21 @@ async addDevice(req: Request, res: Response){
 }
 
 async updateDevice(req: Request, res: Response){
-
+    try{
+        const roomId = ObjectID.createFromHexString(req.params.roomId);
+        await this.roomService.validateRoom(
+            roomId,
+            req.tokenMeta.userId,
+        );
+        const deviceId = ObjectID.createFromHexString(req.params.deviceId);
+        const affectedCount = await this.roomService.updateDevice(
+            deviceId,
+            _.pick(req.body, ['name', 'id', 'unit', 'data']),
+        );
+        res.composer.success(affectedCount);
+    } catch(error){
+        res.composer.badRequest(error.message);
+    }
 }
 
 async deleteDevice(req: Request, res: Response){

@@ -11,6 +11,7 @@ export class Device{
     createdAt: number;
     createdBy: ObjectID;
     isDeleted: boolean;
+    isWorking: boolean;
     room?: ObjectID;
 }
 
@@ -20,8 +21,10 @@ export function fillDefaultDeviceValue(device: Device): Device {
             name: '',
             data: '',
             unit: '',
+            id: '',
             createdAt: Math.floor(Date.now() / 1000),
             isDeleted: false,
+            isWorking: true,
         },
         device,
     );
