@@ -79,4 +79,11 @@ export class HomeService {
         const homes = await this.homeCollection.find(query).toArray();
         return homes.map((home) => _.omit(home));
     }
+
+    async findOne(query: any = {}, keepAll = false): Promise<Home> {
+        const home = (await this.homeCollection.findOne(query)) as Home;
+
+        if (_.isEmpty(home)) throw new ErrorHomeInvalid('User not found');
+        return keepAll ? home : (_.omit(home) as Home);
+    }
 }

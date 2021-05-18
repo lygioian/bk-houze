@@ -26,6 +26,7 @@ export class HomeController extends Controller {
         this.router.patch('/:homeId', this.updateHome.bind(this));
         this.router.delete('/:homeId', this.deleteHome.bind(this));
         this.router.get('/', this.getHomes.bind(this));
+        this.router.get('/:name', this.getByName.bind(this));
     }
 
     async createHome(req: Request, res: Response) {
@@ -79,6 +80,21 @@ export class HomeController extends Controller {
         try {
             const homes = await this.homeService.find();
             res.composer.success(homes);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    async getByName(req: Request, res: Response) {
+        const { name } = req.params;
+        const { userId: tokenUserId } = req.tokenMeta;
+
+        try {
+            const home = await this.homeService.findOne({ name });
+            if (!home) {
+                res.composer.notFound('User not found');
+            }
+            res.composer.success(home);
         } catch (error) {
             res.composer.badRequest(error.message);
         }
