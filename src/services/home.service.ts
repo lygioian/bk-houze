@@ -86,5 +86,12 @@ export class HomeService {
         if (_.isEmpty(home)) throw new ErrorHomeInvalid('User not found');
         return keepAll ? home : (_.omit(home) as Home);
     }
+
+    async createRoutine(homeId: ObjectID, data: any, userId: any) {
+        data.createdAt = Math.floor(Date.now() / 1000);
+        data.createdBy = userId;
+        const opUpdateResult = await this.homeCollection.updateOne({ _id: homeId }, { $push: {"routine": data} });
+        return opUpdateResult.result.nModified;
+    }
     
 }

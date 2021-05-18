@@ -10,7 +10,7 @@ export interface Home {
     createdAt: number;
     createdBy: ObjectID;
     isDeleted: boolean;
-    routine: { config: { deviceId: ObjectID; value: number }[]; createdAt: number; createdBy: string;}[];
+    routine: { config: { deviceId: ObjectID; value: number }; createdAt: number; createdBy: string; }[];
     user: User[];
     room: [];
 }
