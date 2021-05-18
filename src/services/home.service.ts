@@ -76,7 +76,7 @@ export class HomeService {
     }
 
     async find(query: any = {}) {
-        const homes = await this.homeCollection.find(query).toArray();
+        const homes = await this.homeCollection.find({"isDeleted": false}).toArray();
         return homes.map((home) => _.omit(home));
     }
 
@@ -86,4 +86,5 @@ export class HomeService {
         if (_.isEmpty(home)) throw new ErrorHomeInvalid('User not found');
         return keepAll ? home : (_.omit(home) as Home);
     }
+    
 }

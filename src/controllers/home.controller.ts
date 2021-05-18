@@ -27,6 +27,7 @@ export class HomeController extends Controller {
         this.router.delete('/:homeId', this.deleteHome.bind(this));
         this.router.get('/', this.getHomes.bind(this));
         this.router.get('/:name', this.getByName.bind(this));
+        this.router.post('/:name', this.createRountine.bind(this));
     }
 
     async createHome(req: Request, res: Response) {
@@ -95,6 +96,21 @@ export class HomeController extends Controller {
                 res.composer.notFound('User not found');
             }
             res.composer.success(home);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    async createRountine(req: Request, res: Response) {
+        const {name} = req.params;
+
+        try {
+            const home = await this.homeService.findOne({ name });
+            if (!home) {
+                res.composer.notFound('User not found');
+            }
+            // const routine = await this.homeService.createRountine()
+            res.composer.success('Rountine created');
         } catch (error) {
             res.composer.badRequest(error.message);
         }

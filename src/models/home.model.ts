@@ -9,7 +9,8 @@ export interface Home {
     password: string;
     createdAt: number;
     createdBy: ObjectID;
-    routine: { createdAt: number; createdBy: string; config: { deviceId: ObjectID; value: number }; }[];
+    isDeleted: boolean;
+    routine: { config: { deviceId: ObjectID; value: number }[]; createdAt: number; createdBy: string;}[];
     user: User[];
     room: [];
 }
@@ -20,9 +21,12 @@ export function fillDefaultHomeValue(home: Home): Home {
             name: '',
             password: '',
             address: '',
+            routine: [],
+            isDeleted: false,
             createdAt: Math.floor(Date.now() / 1000),
         },
         home,
     );
 }
+
 
