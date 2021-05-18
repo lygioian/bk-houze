@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 
 export class Device{
-    deviceID: ObjectID;
+    readonly _id?: ObjectID;
     id: number;
     createdAt: number;
     name: string;

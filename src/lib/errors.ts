@@ -15,3 +15,8 @@ export class ErrorBundleInvalid extends Error {
     public static readonly code = 'bundle/invalid';
     message = 'Invalid Bundle';
 }
+
+export class ErrorRoomInvalid extends Error {
+    public static readonly code = 'room/invalid';
+    message = 'Invalid Room';
+}
