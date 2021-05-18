@@ -100,10 +100,10 @@ export class RoomService {
         return opUpdateResult.result.nModified;
     }
 
-    async deleteRoutine(roomId: ObjectID, deviceId: ObjectID){
+    async deleteDevice(roomId: ObjectID, deviceId: ObjectID){
         const deletedCount = await this.updateDevice(deviceId, { isDeleted: true});
         if (deletedCount == 0) throw new Error('Unable to delete device');
-        const opResult = await this.deviceCollection.updateOne(
+        const opResult = await this.roomCollection.updateOne(
             { _id: roomId},
             {
                 $pull: { devices: deviceId},
@@ -113,3 +113,5 @@ export class RoomService {
         return opResult.result.nModified;
     }
 }
+
+

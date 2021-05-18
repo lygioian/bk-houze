@@ -5,6 +5,7 @@ import _ from 'lodash';
 export class Device{
     readonly _id?: ObjectID;
     id: number;
+    feed:string;
     name: string;
     data: string;
     unit: string;
