@@ -115,7 +115,8 @@ export class HomeService {
         return { ...insertedRoutine};
     }
     
-    // async updateRoutine(routineId: ObjectID, data: any) {
-
-    // }
+    async updateRoutine(routineId: ObjectID, data: any) {
+        const opUpdateResult = await this.routineCollection.updateOne({ _id: routineId }, { $set: data });
+        return opUpdateResult.result.nModified;
+    }
 }

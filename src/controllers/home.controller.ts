@@ -28,7 +28,7 @@ export class HomeController extends Controller {
         this.router.get('/', this.getHomes.bind(this));
         this.router.get('/:name', this.getByName.bind(this));
         this.router.post('/:homeId/routine', this.createRountine.bind(this));
-        // this.router.patch('/:homeId/routine/:routineId', this.updateRoutine.bind(this));
+        this.router.patch('/:homeId/routine/:routineId', this.updateRoutine.bind(this));
     }
 
     async createHome(req: Request, res: Response) {
@@ -116,6 +116,26 @@ export class HomeController extends Controller {
                 position
             );
             res.composer.success(addedroutine);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    async updateRoutine(req: Request, res: Response) {
+        try {
+            const homeId = ObjectID.createFromHexString(req.params.homeId);
+            await this.homeService.validateHome(
+                homeId,
+                req.tokenMeta.userId,
+            );
+
+            const routineId = ObjectID.createFromHexString(req.params.routineId);
+            const affectedCount = await this.homeService.updateRoutine(
+                routineId,
+                _.pick(req.body, ['config']),
+            );
+
+            res.composer.success(affectedCount);
         } catch (error) {
             res.composer.badRequest(error.message);
         }
