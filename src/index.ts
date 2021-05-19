@@ -16,6 +16,7 @@ import {
     MQTTService,
     HomeService,
     RoomService,
+    DeviceService,
 } from './services';
 import {
     AuthController,
@@ -69,6 +70,10 @@ container
 container
     .bind<RoomService>(ServiceType.Room)
     .to(RoomService)
+    .inSingletonScope();
+container
+    .bind<DeviceService>(ServiceType.Device)
+    .to(DeviceService)
     .inSingletonScope();
 
 // Initialize service first
