@@ -72,4 +72,19 @@ export enum Theme {
     LIGHT = 'light',
 }
 
+// Device topic to subscribe Adafruit
+export enum DeviceTopic {
+    LED = "bk-iot-led",
+    SPEAKER = "bk-iot-speaker",
+    LCD = "bk-iot-lcd",
+    BUTTON = "bk-iot-button",
+    TOUCH = "bk-iot-touch",
+    TEMP_HUMID = "bk-iot-temp-humid",
+    MAGNETIC = "bk-iot-magnetic",
+    SOUND = "bk-iot-sound",
+    LIGHT = "bk-iot-light",
+    INFRARED = "bk-iot-infrared",
+    TIME = "bk-iot-time",
+}
+
 export const LIMIT_PAGING = 24;

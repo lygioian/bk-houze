@@ -37,10 +37,10 @@ function onConnection(socket: any) {
             const decodedToken = await token;
             const { _id: userId } = decodedToken.data;
 
+            // Create a user if not connect, else register new socket
             if (!_.has(connectedUser, userId)) {
                 connectedUser[userId] = new ClientUser(userId);
             }
-
             connectedUser[userId].registerSocket(socket);
 
             tracking.addUserConnecting(socket.id, userId);
