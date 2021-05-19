@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { MongoClient, Db } from 'mongodb';
-import { DB_CONN_STRING, DB_NAME, DeviceTopic } from '../config';
+import { DB_CONN_STRING, DB_NAME, DeviceTopic, getDeviceName } from '../config';
 import mqtt from 'mqtt';
 import { Device } from '../models/device.model';
 import { DeviceService } from './device.service';
@@ -53,33 +53,21 @@ export class MQTTService {
         }
     }
 
-    getDeviceName(topic: string): string {
-        var name: string = topic.split("/")[2];
-        switch (name) {
-            case DeviceTopic.LED:
-                return "LED";
-            case DeviceTopic.MAGNETIC:
-                return "MAGNETIC";
-            default:
-                return null;
-        }
-    }
-    
     onMessage = async (topic: any, message: any) => {
         console.log(
             "Received '" + message + "' on '" + topic + "'",
         );
 
         // Create a new Device document in MongoDB
-        var name = this.getDeviceName(topic);
+        var name = getDeviceName(topic.split("/")[2]);
         if (name === null) return;
         var device = {
-            id: 0,
+            id: 1,
             name: name,
-            data: message
+            data: message.toString()
         };
-        console.log("Device change: ",device)
-        return await this.deviceService.create(device);
+        console.log("Device change: ", device)
+        this.deviceService.create(device);
     }
 
     subscribe(topic: DeviceTopic) {
@@ -108,7 +96,7 @@ export class MQTTService {
 
     publish(topic: DeviceTopic, message: any) {
         if (!this._validateTopic(topic)) {
-            console.log("[MQTT] Subscribe '", topic, "' before publishing!");
+            console.log("[MQTT] Subscribe '" + topic + "' before publishing!");
             return;
         }
         var path: string = this._getTopicPath(topic);

@@ -85,6 +85,37 @@ export enum DeviceTopic {
     LIGHT = "bk-iot-light",
     INFRARED = "bk-iot-infrared",
     TIME = "bk-iot-time",
+    GAS = "bk-iot-gas",
+}
+export function getDeviceName(topic: DeviceTopic): string {
+    switch (topic) {
+        case DeviceTopic.LED:
+            return "LED";
+        case DeviceTopic.SPEAKER:
+            return "SPEAKER";
+        case DeviceTopic.LCD:
+            return "LCD";
+        case DeviceTopic.BUTTON:
+            return "BUTTON";
+        case DeviceTopic.TOUCH:
+            return "TOUCH";
+        case DeviceTopic.TEMP_HUMID:
+            return "TEMP-HUMID";
+        case DeviceTopic.MAGNETIC:
+            return "MAGNETIC";
+        case DeviceTopic.SOUND:
+            return "SOUND";
+        case DeviceTopic.LIGHT:
+            return "LIGHT";
+        case DeviceTopic.INFRARED:
+            return "INFRARED";
+        case DeviceTopic.TIME:
+            return "TIME";
+        case DeviceTopic.GAS:
+            return "GAS";
+        default:
+            return null;
+    }
 }
 
 export const LIMIT_PAGING = 24;
