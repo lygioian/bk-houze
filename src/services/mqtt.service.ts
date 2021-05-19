@@ -4,38 +4,18 @@ import { DB_CONN_STRING, DB_NAME, DeviceTopic } from '../config';
 import mqtt from 'mqtt';
 import { Device } from '../models/device.model';
 import { DeviceService } from './device.service';
+import { lazyInject } from '../container';
+import { ServiceType } from '../types';
 
 var defaultTopics = [DeviceTopic.LED, DeviceTopic.MAGNETIC];
-
-function getDeviceName(topic: string): string {
-    var name: string = topic.split("/")[2];
-    switch (name) {
-        case DeviceTopic.LED:
-            return "LED";
-        case DeviceTopic.SPEAKER:
-            return "SPEAKER";
-        case DeviceTopic.MAGNETIC:
-            return "MAGNETIC";
-        default:
-            return "";
-    }
-}
-
-async function createDeviceHistory(topic: string, message: any): any {
-    var name = getDeviceName(topic);
-    if (name === null) return;
-    var device = {
-        id: 0,
-        name: name,
-    };
-    return await DeviceService.create(device);
-}
 
 @injectable()
 export class MQTTService {
     private client: any;
     private topics: DeviceTopic[];
     private options: any;
+
+    @lazyInject(ServiceType.Device) private deviceService: DeviceService;
 
     constructor() {
         console.log('[MQTT service] Construct');
@@ -61,7 +41,7 @@ export class MQTTService {
 
             // Listen for any message from topics
             await this.client.on('message', this.onMessage);
-
+            this.publish(defaultTopics[0],"AnLy");
             // Receive error message
             this.client.on('error', (error: any) => {
                 console.log("Can't connect" + error);
@@ -73,12 +53,33 @@ export class MQTTService {
         }
     }
 
-    onMessage(topic: any, message: any) {
+    getDeviceName(topic: string): string {
+        var name: string = topic.split("/")[2];
+        switch (name) {
+            case DeviceTopic.LED:
+                return "LED";
+            case DeviceTopic.MAGNETIC:
+                return "MAGNETIC";
+            default:
+                return null;
+        }
+    }
+    
+    onMessage = async (topic: any, message: any) => {
         console.log(
             "Received '" + message + "' on '" + topic + "'",
         );
-        // Create Device document in MongoDB
-        createDeviceHistory(topic, message);
+
+        // Create a new Device document in MongoDB
+        var name = this.getDeviceName(topic);
+        if (name === null) return;
+        var device = {
+            id: 0,
+            name: name,
+            data: message
+        };
+        console.log("Device change: ",device)
+        return await this.deviceService.create(device);
     }
 
     subscribe(topic: DeviceTopic) {
