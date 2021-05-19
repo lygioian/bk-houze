@@ -27,7 +27,7 @@ export class DeviceService {
     }
 
     async create(device: any): Promise<Device> {
-        if (_.isEmpty(device.id) || _.isEmpty(device.name)) {
+        if (device.id == null || _.isEmpty(device.name)) {
             throw new ErrorDeviceInvalid('Missing input fields');
         }
         const addedDevice = await this.deviceCollection.insertOne(
