@@ -57,12 +57,22 @@ export class MQTTService {
         console.log(
             "Received '" + message + "' on '" + topic + "'",
         );
+        
+        /* NOTICE:
+         * 'message' from Adafruit should have format:
+         * {
+         *      'id': '<number>',
+         *      'name': '<device_type/name>',
+         *      'data': '<value>',
+         *      'unit': '<something>,
+         * }
+        */
 
         // Create a new Device document in MongoDB
         var deviceName = getDeviceName(topic.split("/")[2]);
         if (deviceName === null) return;
         var device = {
-            id: 1,
+            id: 1,                  // Temporarily choose id = 1 for testing
             name: deviceName,
             data: message.toString()
         };
