@@ -2,10 +2,10 @@ import { inject, injectable } from 'inversify';
 import { MongoClient, Db } from 'mongodb';
 import { DB_CONN_STRING, DB_NAME, DeviceTopic, getDeviceName } from '../config';
 import mqtt from 'mqtt';
-import { Device } from '../models/device.model';
 import { DeviceService } from './device.service';
 import { lazyInject } from '../container';
 import { ServiceType } from '../types';
+import { ServerEventSystem } from '../server-events';
 
 var defaultTopics = [DeviceTopic.LED, DeviceTopic.MAGNETIC];
 
@@ -59,15 +59,22 @@ export class MQTTService {
         );
 
         // Create a new Device document in MongoDB
-        var name = getDeviceName(topic.split("/")[2]);
-        if (name === null) return;
+        var deviceName = getDeviceName(topic.split("/")[2]);
+        if (deviceName === null) return;
         var device = {
             id: 1,
-            name: name,
+            name: deviceName,
             data: message.toString()
         };
         console.log("Device change: ", device)
         this.deviceService.create(device);
+
+        // Notify user
+        var data = {
+            id: 1,
+            name: deviceName,
+        };
+        ServerEventSystem.notifyUpdate(JSON.stringify(data));
     }
 
     subscribe(topic: DeviceTopic) {
@@ -96,7 +103,7 @@ export class MQTTService {
 
     publish(topic: DeviceTopic, message: any) {
         if (!this._validateTopic(topic)) {
-            console.log("[MQTT] Subscribe '" + topic + "' before publishing!");
+            console.log("[MQTT] Subscribe '" + topic + "' before publishing !");
             return;
         }
         var path: string = this._getTopicPath(topic);

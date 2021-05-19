@@ -9,6 +9,8 @@ let socketIOServer = null;
 let connectedUser = [] as any;
 let tracking = new TrackingUser();
 
+let clientSockets: any = [];
+
 function notifyUser(receiveUserId: any, data: any) {
     console.log('Noti');
     connectedUser.map((e: any) => {
@@ -23,12 +25,18 @@ function notifyUser(receiveUserId: any, data: any) {
 
 function onConnection(socket: any) {
     console.log('New user connected');
-    // console.log(socket);
+
+    // Thanh's code: store all client sockets connection in an array
+    clientSockets.push(socket);
+    
+    // A new user setup a socket connection with server
     connectedUser[socket.id] = new ClientUser(socket.id);
     connectedUser[socket.id].registerSocket(socket);
+
+    // Update tracking service: a new socket from a user
     tracking.addUserConnecting(socket.id, socket.id);
 
-    // console.log(connectedUser);
+    // Authenticate user with token
     socket.on(EventTypes.AUTHENTICATE, async (token: any) => {
         console.log('Has a new connection', socket.id);
         console.log('Connected User', connectedUser);
@@ -60,6 +68,13 @@ function onConnection(socket: any) {
     });
 }
 
+// Emit 'notify' event to all clients
+function notifyUpdate(data: any) {
+    _.forEach(clientSockets, (socket) => {
+        socket.emit(EventTypes.NOTIFY, data);
+    });
+}
+
 function initialize(socketServer: any) {
     socketIOServer = socketServer;
 
@@ -69,5 +84,6 @@ function initialize(socketServer: any) {
 export const ServerEventSystem = {
     initialize,
     notifyUser,
+    notifyUpdate,
     tracking,
 };
