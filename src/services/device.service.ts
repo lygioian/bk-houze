@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { ServiceType } from '../types';
 import { ErrorDeviceInvalid } from '../lib/errors';
 import { lazyInject } from '../container';
+import { SupportedDevices, getDeviceName } from '../config';
 
 import {
     Device,
@@ -30,39 +31,51 @@ export class DeviceService {
         if (device.id == null || _.isEmpty(device.name)) {
             throw new ErrorDeviceInvalid('Missing input fields');
         }
+        const names = SupportedDevices.map((device) => getDeviceName(device));
+        if (!names.includes(device.name))
+            throw new ErrorDeviceInvalid("Invalid device name");
+
         const addedDevice = await this.deviceCollection.insertOne(
             fillDefaultDeviceValue(device as Device),
         );
         return addedDevice.ops[0] as Device;
     }
 
-    async update(deviceId: ObjectID, data: any) {
+    async getNewDeviceId(deviceName: string) {
+        const devices: Device[] = await this.find({ name: deviceName });
+        const maxId = _.maxBy(devices, 'id').id;
+        return maxId + 1;
+    }
+
+    async update(deviceId: number, deviceName: string, data: any) {
         const opUpdateResult = await this.deviceCollection.updateOne(
-            { _id: deviceId },
+            { 
+                _id: deviceId,
+                name: deviceName,
+            },
             { $set: data }
         );
         return opUpdateResult.result.nModified;
     }
 
-    async validate(entryId: ObjectID, deviceId: string) {
+    async validate(deviceId: number, deviceName: string) {
         const device = await this.deviceCollection.findOne(
             { 
-                _id: entryId,
                 id: deviceId,
+                name: deviceName,
             }
         );
         if (_.isEmpty(device)) throw new ErrorDeviceInvalid('Device not found');
-
         return true;
     }
 
-    async delete(deviceId: ObjectID) {
-        return this.update(deviceId, { isDeleted: true });
+    async delete(deviceId: number, deviceName: string) {
+        return this.update(deviceId, deviceName, { isDeleted: true });
     }
 
-    async find(query: any = {}) {
-        const devices = await this.deviceCollection.find({"isDeleted": false}).toArray();
-        return devices.map((device) => _.omit(device));
+    async find(query: any = {}): Promise<Device[]> {
+        const devices = await this.deviceCollection.find(query).toArray();
+        return devices;
     }
 
     async findOne(query: any = {}, keepAll = false): Promise<Device> {

@@ -1,13 +1,10 @@
 import { inject, injectable } from 'inversify';
-import { MongoClient, Db } from 'mongodb';
-import { DB_CONN_STRING, DB_NAME, DeviceTopic, getDeviceName } from '../config';
+import { DeviceTopic, SupportedDevices, getDeviceName } from '../config';
 import mqtt from 'mqtt';
 import { DeviceService } from './device.service';
 import { lazyInject } from '../container';
 import { ServiceType } from '../types';
 import { ServerEventSystem } from '../server-events';
-
-var defaultTopics = [DeviceTopic.LED, DeviceTopic.MAGNETIC];
 
 @injectable()
 export class MQTTService {
@@ -34,14 +31,14 @@ export class MQTTService {
             // Connect Adafruit and subscribe all default topics
             await this.client.on('connect', () => {
                 console.log('[MQTT] MQTT connected !');
-                defaultTopics.map((topic: DeviceTopic) => {
+                SupportedDevices.map((topic: DeviceTopic) => {
                     this.subscribe(topic);
                 });
             });
 
             // Listen for any message from topics
             await this.client.on('message', this.onMessage);
-            this.publish(defaultTopics[0],"AnLy");
+            
             // Receive error message
             this.client.on('error', (error: any) => {
                 console.log("Can't connect" + error);
@@ -61,13 +58,12 @@ export class MQTTService {
         /* NOTICE:
          * 'message' from Adafruit should have format:
          * {
-         *      'id': '<number>',
+         *      'id': '<number_but_in_string>',
          *      'name': '<device_type/name>',
          *      'data': '<value>',
          *      'unit': '<something>,
          * }
         */
-
         // Create a new Device document in MongoDB
         var deviceName = getDeviceName(topic.split("/")[2]);
         if (deviceName === null) return;
@@ -111,7 +107,19 @@ export class MQTTService {
         console.log("[MQTT] Unsubscribed topic:", path);
     }
 
-    publish(topic: DeviceTopic, message: any) {
+    publish(deviceId: number, deviceName: string, data: string) {
+        const idx = SupportedDevices.map((d) => getDeviceName(d)).indexOf(deviceName);
+        const topic = SupportedDevices[idx];
+        const message = {
+            id: String(deviceId),
+            name: deviceName,
+            data: data,
+            unit: "",
+        }
+        this._publish(topic, message);
+    }
+
+    private _publish(topic: DeviceTopic, message: any) {
         if (!this._validateTopic(topic)) {
             console.log("[MQTT] Subscribe '" + topic + "' before publishing !");
             return;
