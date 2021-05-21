@@ -27,6 +27,7 @@ import {
     ContactController,
     HomeController,
     RoomController,
+    DeviceController,
 } from './controllers';
 import { ServiceType } from './types';
 
@@ -91,6 +92,7 @@ Promise.all([
             container.resolve<ContactController>(ContactController),
             container.resolve<HomeController>(HomeController),
             container.resolve<RoomController>(RoomController),
+            container.resolve<DeviceController>(DeviceController),
         ],
         SERVICE_PORT,
         [

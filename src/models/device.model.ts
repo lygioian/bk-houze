@@ -1,7 +1,7 @@
 import { ObjectID } from 'mongodb';
 import _ from 'lodash';
 
-export class Device{
+export class Device {
     readonly _id?: ObjectID;
     id: number;
     name: string;

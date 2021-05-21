@@ -5,9 +5,10 @@ import { MeController } from './me.controller';
 import { UploadController } from './upload.controller';
 import { ContactController } from './contact.controller';
 import { HomeController } from './home.controller';
-
 import { RoomController } from './room.controller';
+import { DeviceController } from './device.controller';
 import { Controller } from './controller';
+
 export {
     Controller,
     AuthController,
@@ -18,4 +19,5 @@ export {
     ContactController,
     HomeController,
     RoomController,
+    DeviceController,
 };
