@@ -118,4 +118,10 @@ export function getDeviceName(topic: DeviceTopic): string {
     }
 }
 
+// List of all supported devices
+export const SupportedDevices = [
+    DeviceTopic.LED,
+    DeviceTopic.MAGNETIC
+];
+
 export const LIMIT_PAGING = 24;
