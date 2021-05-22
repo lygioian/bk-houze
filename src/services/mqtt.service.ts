@@ -69,17 +69,18 @@ export class MQTTService {
         // Create a new Device document in MongoDB
         var deviceName = getDeviceName(topic.split("/")[2]);
         if (deviceName === null) return;
+        const parsedMess = JSON.parse(message.toString());
 
-        const device = await this.deviceService.findOne({
-            // Temporarily choose id = 1 for testing
-            id: 1,
-            name: deviceName,
+        const device = await this.deviceService.findOneOrCreate({
+            id: +parsedMess.id,
+            name: parsedMess.name,
+            unit: parsedMess.unit,
         });
 
         console.log("Device change: ", device)
         await this.deviceStatusService.create({
             deviceId: device._id,
-            data: message.toString(),
+            data: parsedMess.data,
         });
 
         ServerEventSystem.notifyUpdate(JSON.stringify(device._id));
@@ -118,6 +119,7 @@ export class MQTTService {
             data: data,
             unit: "",
         }
+        console.log(message);
         this._publish(topic, message);
     }
 

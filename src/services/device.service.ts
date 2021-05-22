@@ -79,4 +79,12 @@ export class DeviceService {
         if (_.isEmpty(device)) throw new ErrorDeviceInvalid('Device not found');
         return keepAll ? device : (_.omit(device) as Device);
     }
+
+    async findOneOrCreate(query: any={}, keepAll=false): Promise<Device> {
+        const device = (await this.deviceCollection.findOne(query)) as Device;
+        if (_.isEmpty(device)) {
+            return this.create(query);
+        }
+        return device;
+    }
 }
