@@ -9,6 +9,7 @@ import { ContactService } from './contact.service';
 import { HomeService } from './home.service';
 import { RoomService } from './room.service';
 import { DeviceService } from './device.service';
+import { DeviceStatusService } from './device_status.service';
 
 export {
     AuthService,
@@ -22,4 +23,5 @@ export {
     HomeService,
     RoomService,
     DeviceService,
+    DeviceStatusService,
 };

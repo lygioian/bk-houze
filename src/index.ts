@@ -17,6 +17,7 @@ import {
     HomeService,
     RoomService,
     DeviceService,
+    DeviceStatusService,
 } from './services';
 import {
     AuthController,
@@ -75,6 +76,10 @@ container
 container
     .bind<DeviceService>(ServiceType.Device)
     .to(DeviceService)
+    .inSingletonScope();
+container
+    .bind<DeviceStatusService>(ServiceType.DeviceStatus)
+    .to(DeviceStatusService)
     .inSingletonScope();
 
 // Initialize service first

@@ -1,7 +1,8 @@
+import mqtt from 'mqtt';
 import { inject, injectable } from 'inversify';
 import { DeviceTopic, SupportedDevices, getDeviceName } from '../config';
-import mqtt from 'mqtt';
 import { DeviceService } from './device.service';
+import { DeviceStatusService } from './device_status.service';
 import { lazyInject } from '../container';
 import { ServiceType } from '../types';
 import { ServerEventSystem } from '../server-events';
@@ -13,6 +14,7 @@ export class MQTTService {
     private options: any;
 
     @lazyInject(ServiceType.Device) private deviceService: DeviceService;
+    @lazyInject(ServiceType.DeviceStatus) private deviceStatusService: DeviceStatusService;
 
     constructor() {
         console.log('[MQTT service] Construct');
@@ -67,20 +69,20 @@ export class MQTTService {
         // Create a new Device document in MongoDB
         var deviceName = getDeviceName(topic.split("/")[2]);
         if (deviceName === null) return;
-        var device = {
-            id: 1,                  // Temporarily choose id = 1 for testing
-            name: deviceName,
-            data: message.toString()
-        };
-        console.log("Device change: ", device)
-        this.deviceService.create(device);
 
-        // Notify user
-        var data = {
+        const device = await this.deviceService.findOne({
+            // Temporarily choose id = 1 for testing
             id: 1,
             name: deviceName,
-        };
-        ServerEventSystem.notifyUpdate(JSON.stringify(data));
+        });
+
+        console.log("Device change: ", device)
+        await this.deviceStatusService.create({
+            deviceId: device._id,
+            data: message.toString(),
+        });
+
+        ServerEventSystem.notifyUpdate(JSON.stringify(device._id));
     }
 
     subscribe(topic: DeviceTopic) {

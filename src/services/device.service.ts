@@ -3,7 +3,6 @@ import { Collection, ObjectID } from 'mongodb';
 import _ from 'lodash';
 
 import { DatabaseService } from './database.service';
-import { UserService } from './user.service';
 import { ServiceType } from '../types';
 import { ErrorDeviceInvalid } from '../lib/errors';
 import { lazyInject } from '../container';
@@ -18,8 +17,6 @@ import {
 export class DeviceService {
     private deviceCollection: Collection;
 
-    @lazyInject(ServiceType.User) private userService: UserService;
-
     constructor(
         @inject(ServiceType.Database) private dbService: DatabaseService,
     ) {
@@ -28,12 +25,12 @@ export class DeviceService {
     }
 
     async create(device: any): Promise<Device> {
-        if (device.id == null || _.isEmpty(device.name)) {
+        if (device.id === null || _.isEmpty(device.name)) {
             throw new ErrorDeviceInvalid('Missing input fields');
         }
         const names = SupportedDevices.map((device) => getDeviceName(device));
         if (!names.includes(device.name))
-            throw new ErrorDeviceInvalid("Invalid device name");
+            throw new ErrorDeviceInvalid("Invalid device type");
 
         const addedDevice = await this.deviceCollection.insertOne(
             fillDefaultDeviceValue(device as Device),
@@ -47,30 +44,28 @@ export class DeviceService {
         return maxId + 1;
     }
 
-    async update(deviceId: number, deviceName: string, data: any) {
+    async update(deviceId: ObjectID, data: any) {
         const opUpdateResult = await this.deviceCollection.updateOne(
             { 
                 _id: deviceId,
-                name: deviceName,
             },
             { $set: data }
         );
         return opUpdateResult.result.nModified;
     }
 
-    async validate(deviceId: number, deviceName: string) {
+    async validate(deviceId: ObjectID) {
         const device = await this.deviceCollection.findOne(
             { 
-                id: deviceId,
-                name: deviceName,
+                _id: deviceId,
             }
         );
         if (_.isEmpty(device)) throw new ErrorDeviceInvalid('Device not found');
         return true;
     }
 
-    async delete(deviceId: number, deviceName: string) {
-        return this.update(deviceId, deviceName, { isDeleted: true });
+    async delete(deviceId: ObjectID) {
+        return this.update(deviceId, { isDeleted: true });
     }
 
     async find(query: any = {}): Promise<Device[]> {
