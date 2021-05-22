@@ -83,7 +83,11 @@ export class MQTTService {
             data: parsedMess.data,
         });
 
-        ServerEventSystem.notifyUpdate(JSON.stringify(device._id));
+        const sendMess = {
+            ...device,
+            data: parsedMess.data
+        }
+        ServerEventSystem.notifyUpdate(JSON.stringify(sendMess));
     }
 
     subscribe(topic: DeviceTopic) {
