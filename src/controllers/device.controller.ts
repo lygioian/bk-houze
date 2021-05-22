@@ -31,10 +31,11 @@ export class DeviceController extends Controller {
 
         // GET API
         this.router.get('/', this.getDevices.bind(this));
-        this.router.get('/:name', this.getDevicesByName.bind(this));
-        this.router.get('/:id', this.getCurrentDeviceStatus.bind(this));
-        this.router.get('/:id/status', this.getAllDeviceStatus.bind(this));
+        this.router.get('/history', this.getAllStatusHistory.bind(this));
         this.router.get('/support', this.getAllSupportedDevices.bind(this));
+        this.router.get('/:name', this.getDevicesByName.bind(this));
+        this.router.get('/:id/status', this.getCurrentDeviceStatus.bind(this));
+        this.router.get('/:id/history', this.getDeviceStatusHistory.bind(this));
     }
 
     /*
@@ -60,8 +61,10 @@ export class DeviceController extends Controller {
     Control a device via API request
     */
     async controlDevice(req: Request, res: Response) {
-        const device: Device = _.pick(req.body, ["id"]) as any;
-        const data: string = _.pick(req.body, ["data"]).data;
+        const device: Device = await this.deviceService.findOneOrCreate({ 
+            _id: ObjectID.createFromHexString(req.body.id),
+        });
+        const data: string = req.body.data;
         try {
             this.mqttService.publish(device.id, device.name, data);
             res.composer.success("Device operated");
@@ -102,9 +105,9 @@ export class DeviceController extends Controller {
     Get current device status
     */
     async getCurrentDeviceStatus(req: Request, res: Response) {
-        const { id } = req.params;
+        const deviceId = ObjectID.createFromHexString(req.params.id);
         try {
-            const status = await this.deviceStatusService.find({ deviceId: id });
+            const status = await this.deviceStatusService.find({ deviceId: deviceId });
             const curr = _.maxBy(status, 'createdAt');      // Get the latest status
             res.composer.success(curr);
         } catch (error) {
@@ -113,14 +116,24 @@ export class DeviceController extends Controller {
     }
 
     /*
-    Get all history status of a device (sorted ascending by 'createdAt')
+    Get all history status of a device
     */
-    async getAllDeviceStatus(req: Request, res: Response) {
-        const { id } = req.params;
+    async getDeviceStatusHistory(req: Request, res: Response) {
+        const deviceId = ObjectID.createFromHexString(req.params.id);
         try {
-            const status = await this.deviceService.find({ _id: id });
-            // const sorted = _.sortBy(status, ['createdAt']);
-            // res.composer.success(sorted);
+            const status = await this.deviceStatusService.find({ deviceId: deviceId }, true);
+            res.composer.success(status);
+        } catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    /*
+    Get historical status of all devices
+    */
+    async getAllStatusHistory(req: Request, res: Response) {
+        try {
+            const status = await this.deviceStatusService.find({}, true);
             res.composer.success(status);
         } catch (error) {
             res.composer.badRequest(error.message);
