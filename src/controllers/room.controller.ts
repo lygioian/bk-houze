@@ -24,7 +24,7 @@ export class RoomController extends Controller {
         this.router.patch('/:roomId', this.updateRoom.bind(this));
         this.router.delete('/:roomId', this.deleteRoom.bind(this));
         this.router.get('/', this.getRooms.bind(this));
-        this.router.get('/:name', this.getRoomDetail.bind(this));
+        this.router.get('/:roomId', this.getRoomDetail.bind(this));
         this.router.post('/:name', this.addDevice.bind(this));
         this.router.post('/:roomId/device', this.addDevice.bind(this));
         this.router.patch('/:roomId/device/:deviceId', this.updateDevice.bind(this));
@@ -79,10 +79,10 @@ async deleteRoom(req: Request, res: Response){
 }
 
 async getRoomDetail(req: Request, res: Response){
-    const { name } = req.params;
+    const roomId = ObjectID.createFromHexString(req.params.roomId)
     const { userId: tokenUserId } = req.tokenMeta;
     try {
-        const room = await this.roomService.findOne({name});
+        const room = await this.roomService.findOne(roomId);
         if( !room ){
             res.composer.notFound('Room not found');
         }
