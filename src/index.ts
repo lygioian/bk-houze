@@ -31,6 +31,8 @@ import {
 } from './controllers';
 import { ServiceType } from './types';
 
+import { SocketService } from './server-events';
+
 // Binding service
 container
     .bind<AuthService>(ServiceType.Auth)
@@ -76,7 +78,10 @@ container
     .bind<DeviceService>(ServiceType.Device)
     .to(DeviceService)
     .inSingletonScope();
-
+container
+    .bind<SocketService>(ServiceType.Socket)
+    .to(SocketService)
+    .inSingletonScope();
 // Initialize service first
 Promise.all([
     container.get<DatabaseService>(ServiceType.Database).initialize(),
@@ -102,4 +107,5 @@ Promise.all([
     );
 
     app.listen();
+    container.get<SocketService>(ServiceType.Socket).initialize(app.io);
 });

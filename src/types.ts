@@ -22,6 +22,7 @@ export const ServiceType = {
     Home: Symbol.for('Home'),
     Room: Symbol.for('Room'),
     Device: Symbol.for('Device'),
+    Socket: Symbol.for('Socket'),
 };
 
 export enum PrivacyType {
