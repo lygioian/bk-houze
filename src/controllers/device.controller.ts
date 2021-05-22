@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { ObjectID } from 'bson';
 import { Request, Response, ServiceType, PrivacyType } from '../types';
 import { Controller } from './controller';
-import { DeviceService, AuthService, MQTTService } from '../services';
+import { DeviceService, DeviceStatusService, AuthService, MQTTService } from '../services';
 import { SupportedDevices, getDeviceName } from '../config';
 
 import { Device } from '../models/device.model';
@@ -18,6 +18,7 @@ export class DeviceController extends Controller {
     constructor(
         @inject(ServiceType.MQTT) private mqttService: MQTTService,
         @inject(ServiceType.Device) private deviceService: DeviceService,
+        @inject(ServiceType.DeviceStatus) private deviceStatusService: DeviceStatusService,
         @inject(ServiceType.Auth) private authService: AuthService,
     ) {
         super();
@@ -31,8 +32,8 @@ export class DeviceController extends Controller {
         // GET API
         this.router.get('/', this.getDevices.bind(this));
         this.router.get('/:name', this.getDevicesByName.bind(this));
-        this.router.get('/status', this.getCurrentDeviceStatus.bind(this));
-        this.router.get('/history', this.getAllDeviceStatus.bind(this));
+        this.router.get('/:id', this.getCurrentDeviceStatus.bind(this));
+        this.router.get('/:id/status', this.getAllDeviceStatus.bind(this));
         this.router.get('/support', this.getAllSupportedDevices.bind(this));
     }
 
@@ -59,9 +60,10 @@ export class DeviceController extends Controller {
     Control a device via API request
     */
     async controlDevice(req: Request, res: Response) {
-        const t = _.pick(req.body, ['id', 'name', 'data']) as any;
+        const device: Device = _.pick(req.body, ["id"]) as any;
+        const data: string = _.pick(req.body, ["data"]).data;
         try {
-            this.mqttService.publish(t.id, t.name, t.data);
+            this.mqttService.publish(device.id, device.name, data);
             res.composer.success("Device operated");
         }
         catch (error) {
@@ -73,7 +75,6 @@ export class DeviceController extends Controller {
     Get all devices, literally
     */
     async getDevices(req: Request, res: Response) {
-        console.log("Get devices");
         try {
             const devices = await this.deviceService.find();
             res.composer.success(devices);
@@ -98,20 +99,14 @@ export class DeviceController extends Controller {
     }
 
     /*
-    Get current device status by format
-    {
-        id: <number>,
-        name: <string>,
-    }
+    Get current device status
     */
     async getCurrentDeviceStatus(req: Request, res: Response) {
-        const query = _.pick(req.body, ['id', 'name']) as any;
+        const { id } = req.params;
         try {
-            const devices = await this.deviceService.find(query);
-
-            // Get the latest status
-            const device = _.maxBy(devices, 'createdAt');
-            res.composer.success(device);
+            const status = await this.deviceStatusService.find({ deviceId: id });
+            const curr = _.maxBy(status, 'createdAt');      // Get the latest status
+            res.composer.success(curr);
         } catch (error) {
             res.composer.badRequest(error.message);
         }
@@ -121,11 +116,12 @@ export class DeviceController extends Controller {
     Get all history status of a device (sorted ascending by 'createdAt')
     */
     async getAllDeviceStatus(req: Request, res: Response) {
-        const query = _.pick(req.body, ['id', 'name']) as any;
+        const { id } = req.params;
         try {
-            const devices = await this.deviceService.find(query);
-            const sorted = _.sortBy(devices, ['createdAt']);
-            res.composer.success(sorted);
+            const status = await this.deviceService.find({ _id: id });
+            // const sorted = _.sortBy(status, ['createdAt']);
+            // res.composer.success(sorted);
+            res.composer.success(status);
         } catch (error) {
             res.composer.badRequest(error.message);
         }
@@ -135,7 +131,6 @@ export class DeviceController extends Controller {
     Get all support type of devices
     */
     async getAllSupportedDevices(req: Request, res: Response) {
-        console.log("HEloo");
         try {
             const names = SupportedDevices.map((device) => getDeviceName(device));
             res.composer.success(names);

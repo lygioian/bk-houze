@@ -17,6 +17,7 @@ import {
     HomeService,
     RoomService,
     DeviceService,
+    DeviceStatusService,
 } from './services';
 import {
     AuthController,
@@ -82,6 +83,11 @@ container
     .bind<SocketService>(ServiceType.Socket)
     .to(SocketService)
     .inSingletonScope();
+container
+    .bind<DeviceStatusService>(ServiceType.DeviceStatus)
+    .to(DeviceStatusService)
+    .inSingletonScope();
+
 // Initialize service first
 Promise.all([
     container.get<DatabaseService>(ServiceType.Database).initialize(),
