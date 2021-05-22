@@ -25,7 +25,7 @@ export class DeviceStatusService {
     }
 
     async create(status: any): Promise<DeviceStatus> {
-        if (status.deviceId === null) {
+        if (status.deviceId == null) {
             throw new ErrorDeviceStatusInvalid('Missing input fields');
         }
 
@@ -59,15 +59,42 @@ export class DeviceStatusService {
         return this.deviceStatusCollection.deleteOne(statusId);
     }
 
-    async find(query: any = {}): Promise<DeviceStatus[]> {
-        const status = await this.deviceStatusCollection.find(query).toArray();
-        return status;
-    }
+    // async find(query: any = {}): Promise<DeviceStatus[]> {
+    //     const status = await this.deviceStatusCollection.find(query).toArray();
+    //     return status;
+    // }
 
     async findOne(query: any = {}, keepAll = false): Promise<DeviceStatus> {
         const status = (await this.deviceStatusCollection.findOne(query)) as DeviceStatus;
 
         if (_.isEmpty(status)) throw new ErrorDeviceStatusInvalid('Device status not found');
         return keepAll ? status : (_.omit(status) as DeviceStatus);
+    }
+
+    async find(query: any = {}, populate = false, limit = 10, simplify = false): Promise<DeviceStatus[]> {
+        let aggreateCommand: any[] = [
+            { $match: query },
+            { $sort: { createdAt: -1 } },
+        ];
+
+        if (populate) aggreateCommand = this.populateDeviceStatus(aggreateCommand);
+
+        const status = await this.deviceStatusCollection.aggregate(aggreateCommand).toArray();
+
+        return status;
+    }
+
+    private populateDeviceStatus(aggreateCommand: any) {
+        return _.concat(aggreateCommand, [
+            {
+                $lookup: {
+                    from: 'devices',
+                    localField: 'deviceId',
+                    foreignField: '_id',
+                    as: 'device',
+                },
+            },
+            { $unwind: '$device' },
+        ]);
     }
 }
