@@ -72,4 +72,56 @@ export enum Theme {
     LIGHT = 'light',
 }
 
+// Device topic to subscribe Adafruit
+export enum DeviceTopic {
+    LED = "bk-iot-led",
+    SPEAKER = "bk-iot-speaker",
+    LCD = "bk-iot-lcd",
+    BUTTON = "bk-iot-button",
+    TOUCH = "bk-iot-touch",
+    TEMP_HUMID = "bk-iot-temp-humid",
+    MAGNETIC = "bk-iot-magnetic",
+    SOUND = "bk-iot-sound",
+    LIGHT = "bk-iot-light",
+    INFRARED = "bk-iot-infrared",
+    TIME = "bk-iot-time",
+    GAS = "bk-iot-gas",
+}
+export function getDeviceName(topic: DeviceTopic): string {
+    switch (topic) {
+        case DeviceTopic.LED:
+            return "LED";
+        case DeviceTopic.SPEAKER:
+            return "SPEAKER";
+        case DeviceTopic.LCD:
+            return "LCD";
+        case DeviceTopic.BUTTON:
+            return "BUTTON";
+        case DeviceTopic.TOUCH:
+            return "TOUCH";
+        case DeviceTopic.TEMP_HUMID:
+            return "TEMP-HUMID";
+        case DeviceTopic.MAGNETIC:
+            return "MAGNETIC";
+        case DeviceTopic.SOUND:
+            return "SOUND";
+        case DeviceTopic.LIGHT:
+            return "LIGHT";
+        case DeviceTopic.INFRARED:
+            return "INFRARED";
+        case DeviceTopic.TIME:
+            return "TIME";
+        case DeviceTopic.GAS:
+            return "GAS";
+        default:
+            return null;
+    }
+}
+
+// List of all supported devices
+export const SupportedDevices = [
+    DeviceTopic.LED,
+    DeviceTopic.MAGNETIC
+];
+
 export const LIMIT_PAGING = 24;

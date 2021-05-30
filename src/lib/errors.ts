@@ -30,7 +30,12 @@ export class ErrorRoutineInvalid extends Error {
     message = 'Invalid Routine';
 }
 
-export class ErrorDeviceInvalid extends Error{
+export class ErrorDeviceInvalid extends Error {
     public static readonly code = 'device/invalid';
     message = 'Invalid Device';
+}
+
+export class ErrorDeviceStatusInvalid extends Error {
+    public static readonly code = 'device_status/invalid';
+    message = 'Invalid Device status';
 }

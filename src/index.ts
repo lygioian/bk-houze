@@ -16,6 +16,8 @@ import {
     MQTTService,
     HomeService,
     RoomService,
+    DeviceService,
+    DeviceStatusService,
 } from './services';
 import {
     AuthController,
@@ -26,8 +28,11 @@ import {
     ContactController,
     HomeController,
     RoomController,
+    DeviceController,
 } from './controllers';
 import { ServiceType } from './types';
+
+import { SocketService } from './server-events';
 
 // Binding service
 container
@@ -70,6 +75,18 @@ container
     .bind<RoomService>(ServiceType.Room)
     .to(RoomService)
     .inSingletonScope();
+container
+    .bind<DeviceService>(ServiceType.Device)
+    .to(DeviceService)
+    .inSingletonScope();
+container
+    .bind<SocketService>(ServiceType.Socket)
+    .to(SocketService)
+    .inSingletonScope();
+container
+    .bind<DeviceStatusService>(ServiceType.DeviceStatus)
+    .to(DeviceStatusService)
+    .inSingletonScope();
 
 // Initialize service first
 Promise.all([
@@ -86,6 +103,7 @@ Promise.all([
             container.resolve<ContactController>(ContactController),
             container.resolve<HomeController>(HomeController),
             container.resolve<RoomController>(RoomController),
+            container.resolve<DeviceController>(DeviceController),
         ],
         SERVICE_PORT,
         [
@@ -95,4 +113,5 @@ Promise.all([
     );
 
     app.listen();
+    container.get<SocketService>(ServiceType.Socket).initialize(app.io);
 });

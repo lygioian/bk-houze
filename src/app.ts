@@ -4,7 +4,7 @@ import cors from 'cors';
 import useragent from 'express-useragent';
 import http from 'http';
 import socketIoInit from 'socket.io';
-import { ServerEventSystem } from './server-events';
+// import { ServerEventSystem } from './server-events';
 
 import { Controller } from './controllers';
 
@@ -14,6 +14,7 @@ class App {
     public app: any;
     public server: any;
     public port: number;
+    public io: any;
 
     constructor(controllers: Controller[], port: number, middlewares: any[]) {
         this.app = express();
@@ -54,7 +55,7 @@ class App {
         // this.server.on('listening', () => {
         //     console.log(`[${SERVICE_NAME}] listening on the port ${this.port}`);
         // });
-        let io = require('socket.io')(this.server, {
+        this.io = require('socket.io')(this.server, {
             cors: {
                 origin: '*',
                 methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -63,7 +64,7 @@ class App {
             },
         });
 
-        ServerEventSystem.initialize(io);
+        // ServerEventSystem.initialize(io);
 
         this.server.listen(this.port, () => {
             console.log(`[${SERVICE_NAME}] listening on the port ${this.port}`);

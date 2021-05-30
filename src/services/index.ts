@@ -7,8 +7,10 @@ import { UploadService } from './upload.service';
 import { MailService } from './mail.service';
 import { ContactService } from './contact.service';
 import { HomeService } from './home.service';
+import { RoomService } from './room.service';
+import { DeviceService } from './device.service';
+import { DeviceStatusService } from './device_status.service';
 
-import { RoomService} from './room.service';
 export {
     AuthService,
     UserService,
@@ -20,4 +22,6 @@ export {
     MQTTService,
     HomeService,
     RoomService,
+    DeviceService,
+    DeviceStatusService,
 };

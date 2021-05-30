@@ -23,8 +23,9 @@ class ClientUser {
     }
 
     notifyClient(data: any) {
-        _.forEach(this.sockets, (socket) => {
-            socket.emit(EventTypes.NOTIFY, data);
+        console.log('Notify', data);
+        Object.keys(this.sockets).map((key: any, index: any) => {
+            this.sockets[key].emit(EventTypes.NOTIFY, data);
         });
     }
 
