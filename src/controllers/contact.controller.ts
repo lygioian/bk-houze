@@ -12,7 +12,7 @@ import {
 } from '../services';
 import { User } from '../models/user.model';
 import { UPLOAD_DIR, EMAIL_SENDER } from '../config';
-import { ServerEventSystem } from '../server-events';
+// import { ServerEventSystem } from '../server-events';
 
 @injectable()
 export class ContactController extends Controller {
@@ -29,10 +29,11 @@ export class ContactController extends Controller {
 
     async relayContact(req: Request, res: Response) {
         try {
-            ServerEventSystem.notifyUser('5eb14ca56ff46324e4184f3f', 'Hi all!');
+            // ServerEventSystem.notifyUser('5eb14ca56ff46324e4184f3f', 'Hi all!');
 
             res.composer.success(
-                ServerEventSystem.tracking.getUserConnecting(),
+                '',
+                // ServerEventSystem.tracking.getUserConnecting(),
             );
         } catch (error) {
             console.log(error);
