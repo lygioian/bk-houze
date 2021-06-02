@@ -7,6 +7,13 @@ import ClientUser from './client-user';
 import TrackingUser from './tracking-user';
 import { AuthService } from '../services/auth.service';
 import { Request, Response, ServiceType } from '../types';
+import TrackingDevice from './tracking-device';
+
+import IllegalDetection from './illegal-detection';
+import PlantWatering from './plant-watering';
+import FireAlarm from './fire-alarm';
+import EntranceManagement from './entrance-management';
+import AutoLighting from './auto-lighting';
 
 // let socketIOServer = null;
 // let connectedUser = [] as any;
@@ -20,6 +27,7 @@ export class SocketService {
     private connectedUser = [] as any;
     private tracking: TrackingUser;
     private clientSockets: any;
+    private trackingDevice: TrackingDevice;
 
     constructor(@inject(ServiceType.Auth) private authService: AuthService) {
         console.log('[SOCKET IO Service] Construct');
@@ -91,18 +99,21 @@ export class SocketService {
 
     // Emit 'notify' event to all clients
     notifyUpdate = (data: any) => {
+        this.trackingDevice.update(data.deviceName);
+
         Object.keys(this.connectedUser).map((key: any, index: any) => {
             this.connectedUser[key].notifyClient(data);
         });
-
-        // _.forEach(this.clientSockets, (socket) => {
-        //     // console.log(socket);
-        //     socket.emit(EventTypes.NOTIFY, data);
-        // });
     };
 
     initialize = (socketServer: any) => {
         this.socketIOServer = socketServer;
+
+        this.trackingDevice.add(new IllegalDetection(), ['MAGNETIC']);
+        this.trackingDevice.add(new PlantWatering(), ['MOISTURE']);
+        this.trackingDevice.add(new EntranceManagement(), ['MAGNETIC']);
+        this.trackingDevice.add(new AutoLighting(), ['LIGHT']);
+        this.trackingDevice.add(new FireAlarm(), ['TEMP-HUMID', 'GAS']);
 
         this.socketIOServer.on('connection', this.onConnection);
     };
