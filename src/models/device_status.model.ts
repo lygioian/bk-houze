@@ -5,10 +5,13 @@ export class DeviceStatus {
     readonly _id?: ObjectID;
     deviceId: ObjectID;
     data: string;
+    message: string;
     createdAt: number;
 }
 
-export function fillDefaultDeviceStatusValue(deviceStatus: DeviceStatus): DeviceStatus {
+export function fillDefaultDeviceStatusValue(
+    deviceStatus: DeviceStatus,
+): DeviceStatus {
     return _.merge(
         {
             data: '',

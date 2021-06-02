@@ -10,6 +10,7 @@ export class Device {
     createdBy: ObjectID;
     isDeleted: boolean;
     isWorking: boolean;
+    dienNang: number;
     room?: ObjectID;
 }
 

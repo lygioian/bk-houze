@@ -2,12 +2,20 @@ import { ObjectID } from 'mongodb';
 import _ from 'lodash';
 import { User } from './user.model';
 
+export enum Service {
+    IllegalDetection = 'IllegalDetection',
+    PlantWatering = 'PlantWatering',
+    FireAlarm = 'FireAlarm',
+    EntranceManagement = 'EntranceManagement',
+    AutoLighting = 'AutoLighting',
+}
+
 export interface Routine {
     readonly _id?: ObjectID;
-    config: { 
+    config: {
         deviceId: ObjectID;
         value: number;
-    }
+    };
     createdAt: number;
     createdBy: string;
     home?: ObjectID;
@@ -23,7 +31,7 @@ export interface Home {
     isDeleted: boolean;
     routines: Routine[];
     user: User[];
-    room: [];
+    services: Service[];
 }
 
 export function fillDefaultHomeValue(home: Home): Home {
@@ -45,7 +53,7 @@ export function fillDefaultRoutineValue(routine: Routine): Routine {
         {
             config: {
                 deviceId: '',
-                value: ''
+                value: '',
             },
             isDeleted: false,
             createdAt: Math.floor(Date.now() / 1000),
@@ -53,5 +61,3 @@ export function fillDefaultRoutineValue(routine: Routine): Routine {
         routine,
     );
 }
-
-
