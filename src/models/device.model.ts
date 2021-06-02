@@ -10,6 +10,7 @@ export class Device {
     createdBy: ObjectID;
     isDeleted: boolean;
     isWorking: boolean;
+    isLocked: boolean;      // Lock from changing
     room?: ObjectID;
 }
 
@@ -18,6 +19,7 @@ export function fillDefaultDeviceValue(device: Device): Device {
         {
             unit: '',
             createdAt: Math.floor(Date.now() / 1000),
+            isLocked: false,
             isDeleted: false,
             isWorking: true,
         },
