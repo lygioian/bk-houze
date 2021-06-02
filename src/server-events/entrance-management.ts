@@ -1,7 +1,7 @@
 class EntranceManagement {
     constructor() {}
 
-    update() {}
+    update(data: any) {}
 }
 
 export default EntranceManagement;

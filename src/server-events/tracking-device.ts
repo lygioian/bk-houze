@@ -18,11 +18,11 @@ class TrackingDevice {
         );
     }
 
-    update(deviceName: any) {
+    update(deviceName: any, data: any) {
         this.deviceConnecting.map((e: any) => {
-            if (e.deviceName[0] == deviceName) e.update();
+            if (e.deviceName[0] == deviceName) e.update(data);
             if (e.deviceName.length > 1) {
-                if (e.deviceName[1] == deviceName) e.update();
+                if (e.deviceName[1] == deviceName) e.update(data);
             }
         });
     }

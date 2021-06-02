@@ -1,7 +1,7 @@
 class PlantWatering {
     constructor() {}
 
-    update() {}
+    update(data: any) {}
 }
 
 export default PlantWatering;

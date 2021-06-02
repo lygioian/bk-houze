@@ -1,7 +1,7 @@
 class FireAlarm {
     constructor() {}
 
-    update() {}
+    update(data: any) {}
 }
 
 export default FireAlarm;

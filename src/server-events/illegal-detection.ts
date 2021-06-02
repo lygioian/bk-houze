@@ -1,7 +1,7 @@
 class IllegalDetection {
     constructor() {}
 
-    update() {}
+    update(data: any) {}
 }
 
 export default IllegalDetection;

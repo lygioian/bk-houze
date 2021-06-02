@@ -5,7 +5,6 @@ import { EventTypes } from './event-types';
 // import { verifyJWTToken } from "../services/auth.service";
 import ClientUser from './client-user';
 import TrackingUser from './tracking-user';
-import { AuthService } from '../services/auth.service';
 import { Request, Response, ServiceType } from '../types';
 import TrackingDevice from './tracking-device';
 
@@ -14,6 +13,12 @@ import PlantWatering from './plant-watering';
 import FireAlarm from './fire-alarm';
 import EntranceManagement from './entrance-management';
 import AutoLighting from './auto-lighting';
+import {
+    DeviceService,
+    DeviceStatusService,
+    AuthService,
+    MQTTService,
+} from '../services';
 
 // let socketIOServer = null;
 // let connectedUser = [] as any;
@@ -29,7 +34,12 @@ export class SocketService {
     private clientSockets: any;
     private trackingDevice: TrackingDevice;
 
-    constructor(@inject(ServiceType.Auth) private authService: AuthService) {
+    constructor(
+        @inject(ServiceType.Device) private deviceService: DeviceService,
+        @inject(ServiceType.DeviceStatus)
+        private deviceStatusService: DeviceStatusService,
+        @inject(ServiceType.Auth) private authService: AuthService,
+    ) {
         console.log('[SOCKET IO Service] Construct');
 
         this.socketIOServer = null;
@@ -99,7 +109,7 @@ export class SocketService {
 
     // Emit 'notify' event to all clients
     notifyUpdate = (data: any) => {
-        this.trackingDevice.update(data.deviceName);
+        this.trackingDevice.update(data.deviceName, data);
 
         Object.keys(this.connectedUser).map((key: any, index: any) => {
             this.connectedUser[key].notifyClient(data);
@@ -112,7 +122,10 @@ export class SocketService {
         this.trackingDevice.add(new IllegalDetection(), ['MAGNETIC']);
         this.trackingDevice.add(new PlantWatering(), ['MOISTURE']);
         this.trackingDevice.add(new EntranceManagement(), ['MAGNETIC']);
-        this.trackingDevice.add(new AutoLighting(), ['LIGHT']);
+        this.trackingDevice.add(new AutoLighting(this.deviceService), [
+            'LIGHT',
+            'LED',
+        ]);
         this.trackingDevice.add(new FireAlarm(), ['TEMP-HUMID', 'GAS']);
 
         this.socketIOServer.on('connection', this.onConnection);
