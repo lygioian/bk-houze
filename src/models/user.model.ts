@@ -102,6 +102,12 @@ export interface User {
         type: MediaType;
     };
 
+    notify: {
+        title: string;
+        createdAt: number;
+        serviceName: string;
+    }[];
+
     /* Admin */
     postCreated?: ObjectID[];
     eventCreated?: ObjectID[];

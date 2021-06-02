@@ -11,6 +11,7 @@ export class Device {
     isDeleted: boolean;
     isWorking: boolean;
     isLocked: boolean;      // Lock from changing
+    dienNang: number;
     room?: ObjectID;
 }
 

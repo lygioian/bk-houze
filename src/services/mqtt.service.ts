@@ -6,6 +6,7 @@ import { DeviceStatusService } from './device_status.service';
 import { lazyInject } from '../container';
 import { ServiceType } from '../types';
 import { SocketService } from '../server-events';
+import { AuthService } from '.';
 // import { ServerEventSystem } from '../server-events';
 
 @injectable()
@@ -86,11 +87,11 @@ export class MQTTService {
             data: parsedMess.data,
         });
 
-        const sendMess = {
-            ...device,
-            data: parsedMess.data
-        }
-        this.socketService.notifyUpdate(JSON.stringify(sendMess));
+        this.socketService.notifyUpdate({
+            deviceId: device._id,
+            name: deviceName,
+            data: parsedMess.data,
+        });
     };
 
     subscribe(topic: DeviceTopic) {
