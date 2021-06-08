@@ -35,6 +35,7 @@ export class SocketService {
     private trackingDevice: TrackingDevice;
 
     constructor(
+        @inject(ServiceType.MQTT) private mqttService: MQTTService,
         @inject(ServiceType.Device) private deviceService: DeviceService,
         @inject(ServiceType.DeviceStatus)
         private deviceStatusService: DeviceStatusService,
@@ -121,7 +122,10 @@ export class SocketService {
 
         this.trackingDevice.add(new IllegalDetection(), ['MAGNETIC']);
         this.trackingDevice.add(new PlantWatering(), ['MOISTURE']);
-        this.trackingDevice.add(new EntranceManagement(), ['MAGNETIC']);
+        this.trackingDevice.add(new EntranceManagement(
+            this.deviceService, 
+            this.mqttService
+        ), ['MAGNETIC']);
         this.trackingDevice.add(new AutoLighting(this.deviceService), [
             'LIGHT',
             'LED',
