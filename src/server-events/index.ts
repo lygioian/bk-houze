@@ -46,7 +46,7 @@ export class SocketService {
         this.socketIOServer = null;
         this.connectedUser = [] as any;
         this.tracking = new TrackingUser();
-
+        this.trackingDevice = new TrackingDevice();
         this.clientSockets = [];
     }
 
@@ -110,7 +110,7 @@ export class SocketService {
 
     // Emit 'notify' event to all clients
     notifyUpdate = (data: any) => {
-        this.trackingDevice.update(data.deviceName, data);
+        this.trackingDevice.update(data.name, data);
 
         Object.keys(this.connectedUser).map((key: any, index: any) => {
             this.connectedUser[key].notifyClient(data);
@@ -119,13 +119,13 @@ export class SocketService {
 
     initialize = (socketServer: any) => {
         this.socketIOServer = socketServer;
-
+        let test = new EntranceManagement(this.deviceService, this.mqttService);
         this.trackingDevice.add(new IllegalDetection(), ['MAGNETIC']);
         this.trackingDevice.add(new PlantWatering(), ['MOISTURE']);
-        this.trackingDevice.add(new EntranceManagement(
-            this.deviceService, 
-            this.mqttService
-        ), ['MAGNETIC']);
+        this.trackingDevice.add(
+            new EntranceManagement(this.deviceService, this.mqttService),
+            ['MAGNETIC'],
+        );
         this.trackingDevice.add(new AutoLighting(this.deviceService), [
             'LIGHT',
             'LED',
