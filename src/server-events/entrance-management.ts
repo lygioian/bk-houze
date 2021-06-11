@@ -1,6 +1,7 @@
 import { inject } from 'inversify';
 import { ServiceType } from '../types';
 import { DeviceService, MQTTService } from '../services';
+import { DeviceTopic, getDeviceName } from '../config';
 
 class EntranceManagement {
     constructor(
@@ -26,7 +27,8 @@ class EntranceManagement {
             Enable buzzer at 256
             (Later will add timeout callback to stop buzzer after 10 mins or maybe not)
             */
-            this.mqttService.publish(device.id, device.name, '256');
+            const buzzerName = getDeviceName(DeviceTopic.SPEAKER);
+            this.mqttService.publish(2, buzzerName, '256');
         }
     }
 }

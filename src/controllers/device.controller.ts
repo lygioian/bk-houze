@@ -159,10 +159,10 @@ export class DeviceController extends Controller {
     Lock a device from external changing
     */
     async lockDevice(req: Request, res: Response) {
-        const deviceId = ObjectID.createFromHexString(req.params.id);
+        const deviceId = ObjectID.createFromHexString(req.body.id);
         try {
-            await this.deviceService.update(deviceId, { isLocked: true });
-            res.composer.success(`Device ${deviceId} is locked`);
+            const n = await this.deviceService.update(deviceId, { isLocked: true });
+            res.composer.success(`${n} Device ${deviceId} is locked`);
         }
         catch (error) {
             res.composer.badRequest(error.message);
@@ -172,10 +172,10 @@ export class DeviceController extends Controller {
     Unlock a device for external changing
     */
     async unlockDevice(req: Request, res: Response) {
-        const deviceId = ObjectID.createFromHexString(req.params.id);
+        const deviceId = ObjectID.createFromHexString(req.body.id);
         try {
-            await this.deviceService.update(deviceId, { isLocked: false });
-            res.composer.success(`Device ${deviceId} is unlocked`);
+            const n = await this.deviceService.update(deviceId, { isLocked: false });
+            res.composer.success(`${n} Device ${deviceId} is unlocked`);
         }
         catch (error) {
             res.composer.badRequest(error.message);
