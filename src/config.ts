@@ -79,11 +79,16 @@ export enum DeviceTopic {
     LCD = 'bk-iot-lcd',
     BUTTON = 'bk-iot-button',
     TOUCH = 'bk-iot-touch',
+    TRAFFIC = 'bk-iot-traffic',
     TEMP_HUMID = 'bk-iot-temp-humid',
     MAGNETIC = 'bk-iot-magnetic',
+    SOIL = 'bk-iot-soil',
+    DRV = 'bk-iot-drv',
+    RELAY = 'bk-iot-relay',
     SOUND = 'bk-iot-sound',
     LIGHT = 'bk-iot-light',
     INFRARED = 'bk-iot-infrared',
+    SERVO = 'bk-iot-servo',
     TIME = 'bk-iot-time',
     GAS = 'bk-iot-gas',
 }
@@ -99,16 +104,26 @@ export function getDeviceName(topic: DeviceTopic): string {
             return 'BUTTON';
         case DeviceTopic.TOUCH:
             return 'TOUCH';
+        case DeviceTopic.TRAFFIC:
+            return 'TRAFFIC';
         case DeviceTopic.TEMP_HUMID:
             return 'TEMP-HUMID';
         case DeviceTopic.MAGNETIC:
             return 'MAGNETIC';
+        case DeviceTopic.SOIL:
+            return 'SOIL';
+        case DeviceTopic.DRV:
+            return 'DRV_PWM';
+        case DeviceTopic.RELAY:
+            return 'RELAY';
         case DeviceTopic.SOUND:
             return 'SOUND';
         case DeviceTopic.LIGHT:
             return 'LIGHT';
         case DeviceTopic.INFRARED:
             return 'INFRARED';
+        case DeviceTopic.SERVO:
+            return 'SERVO';
         case DeviceTopic.TIME:
             return 'TIME';
         case DeviceTopic.GAS:
@@ -121,10 +136,15 @@ export function getDeviceName(topic: DeviceTopic): string {
 // List of all supported devices
 export const SupportedDevices = [
     DeviceTopic.LED,
-    DeviceTopic.MAGNETIC,
+    DeviceTopic.SPEAKER,
     DeviceTopic.TEMP_HUMID,
+    DeviceTopic.MAGNETIC,
+    DeviceTopic.SOIL,
+    DeviceTopic.SOUND,
     DeviceTopic.LIGHT,
     DeviceTopic.INFRARED,
+    DeviceTopic.TIME,
+    DeviceTopic.GAS,
 ];
 
 export const LIMIT_PAGING = 24;

@@ -5,7 +5,7 @@ class TrackingDevice {
         this.deviceConnecting = [];
     }
 
-    add(deviceName: any, obj: any) {
+    add(obj: any, deviceName: any) {
         this.deviceConnecting.push({
             name: deviceName,
             observer: obj,
@@ -20,9 +20,12 @@ class TrackingDevice {
 
     update(deviceName: any, data: any) {
         this.deviceConnecting.map((e: any) => {
-            if (e.deviceName[0] == deviceName) e.update(data);
-            if (e.deviceName.length > 1) {
-                if (e.deviceName[1] == deviceName) e.update(data);
+            if (e.name[0] == deviceName) {
+                e.observer.update(data);
+            }
+
+            if (e.name.length > 1) {
+                if (e.name[1] == deviceName) e.observer.update(data);
             }
         });
     }
