@@ -74,45 +74,45 @@ export enum Theme {
 
 // Device topic to subscribe Adafruit
 export enum DeviceTopic {
-    LED = "bk-iot-led",
-    SPEAKER = "bk-iot-speaker",
-    LCD = "bk-iot-lcd",
-    BUTTON = "bk-iot-button",
-    TOUCH = "bk-iot-touch",
-    TEMP_HUMID = "bk-iot-temp-humid",
-    MAGNETIC = "bk-iot-magnetic",
-    SOUND = "bk-iot-sound",
-    LIGHT = "bk-iot-light",
-    INFRARED = "bk-iot-infrared",
-    TIME = "bk-iot-time",
-    GAS = "bk-iot-gas",
+    LED = 'bk-iot-led',
+    SPEAKER = 'bk-iot-speaker',
+    LCD = 'bk-iot-lcd',
+    BUTTON = 'bk-iot-button',
+    TOUCH = 'bk-iot-touch',
+    TEMP_HUMID = 'bk-iot-temp-humid',
+    MAGNETIC = 'bk-iot-magnetic',
+    SOUND = 'bk-iot-sound',
+    LIGHT = 'bk-iot-light',
+    INFRARED = 'bk-iot-infrared',
+    TIME = 'bk-iot-time',
+    GAS = 'bk-iot-gas',
 }
 export function getDeviceName(topic: DeviceTopic): string {
     switch (topic) {
         case DeviceTopic.LED:
-            return "LED";
+            return 'LED';
         case DeviceTopic.SPEAKER:
-            return "SPEAKER";
+            return 'SPEAKER';
         case DeviceTopic.LCD:
-            return "LCD";
+            return 'LCD';
         case DeviceTopic.BUTTON:
-            return "BUTTON";
+            return 'BUTTON';
         case DeviceTopic.TOUCH:
-            return "TOUCH";
+            return 'TOUCH';
         case DeviceTopic.TEMP_HUMID:
-            return "TEMP-HUMID";
+            return 'TEMP-HUMID';
         case DeviceTopic.MAGNETIC:
-            return "MAGNETIC";
+            return 'MAGNETIC';
         case DeviceTopic.SOUND:
-            return "SOUND";
+            return 'SOUND';
         case DeviceTopic.LIGHT:
-            return "LIGHT";
+            return 'LIGHT';
         case DeviceTopic.INFRARED:
-            return "INFRARED";
+            return 'INFRARED';
         case DeviceTopic.TIME:
-            return "TIME";
+            return 'TIME';
         case DeviceTopic.GAS:
-            return "GAS";
+            return 'GAS';
         default:
             return null;
     }
@@ -121,7 +121,10 @@ export function getDeviceName(topic: DeviceTopic): string {
 // List of all supported devices
 export const SupportedDevices = [
     DeviceTopic.LED,
-    DeviceTopic.MAGNETIC
+    DeviceTopic.MAGNETIC,
+    DeviceTopic.TEMP_HUMID,
+    DeviceTopic.LIGHT,
+    DeviceTopic.INFRARED,
 ];
 
 export const LIMIT_PAGING = 24;
