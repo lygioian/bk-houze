@@ -28,6 +28,8 @@ export class DeviceController extends Controller {
         // POST API
         this.router.post('/', this.createDevice.bind(this));
         this.router.post('/control', this.controlDevice.bind(this));
+        this.router.post('/lock', this.lockDevice.bind(this));
+        this.router.post('/unlock', this.unlockDevice.bind(this));
 
         // GET API
         this.router.get('/', this.getDevices.bind(this));
@@ -147,6 +149,33 @@ export class DeviceController extends Controller {
         try {
             const names = SupportedDevices.map((device) => getDeviceName(device));
             res.composer.success(names);
+        }
+        catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+
+    /*
+    Lock a device from external changing
+    */
+    async lockDevice(req: Request, res: Response) {
+        const deviceId = ObjectID.createFromHexString(req.body.id);
+        try {
+            const n = await this.deviceService.update(deviceId, { isLocked: true });
+            res.composer.success(`${n} Device ${deviceId} is locked`);
+        }
+        catch (error) {
+            res.composer.badRequest(error.message);
+        }
+    }
+    /*
+    Unlock a device for external changing
+    */
+    async unlockDevice(req: Request, res: Response) {
+        const deviceId = ObjectID.createFromHexString(req.body.id);
+        try {
+            const n = await this.deviceService.update(deviceId, { isLocked: false });
+            res.composer.success(`${n} Device ${deviceId} is unlocked`);
         }
         catch (error) {
             res.composer.badRequest(error.message);
