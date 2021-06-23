@@ -121,7 +121,7 @@ export class SocketService {
         this.socketIOServer = socketServer;
         let test = new EntranceManagement(this.deviceService, this.mqttService);
         this.trackingDevice.add(new IllegalDetection(), ['MAGNETIC']);
-        this.trackingDevice.add(new PlantWatering(), ['MOISTURE']);
+        this.trackingDevice.add(new PlantWatering(this.deviceService,this.mqttService), ['RELAY', 'SOIL']);
         this.trackingDevice.add(
             new EntranceManagement(this.deviceService, this.mqttService),
             ['MAGNETIC'],

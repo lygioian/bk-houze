@@ -1,4 +1,5 @@
 import path from 'path';
+import { Device } from './models/device.model';
 
 export const IS_PRODUCTION = process.env.NODE_ENV == 'production';
 
@@ -145,6 +146,7 @@ export const SupportedDevices = [
     DeviceTopic.INFRARED,
     DeviceTopic.TIME,
     DeviceTopic.GAS,
+    DeviceTopic.RELAY
 ];
 
 export const LIMIT_PAGING = 24;
