@@ -3,7 +3,12 @@ import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { Request, Response, ServiceType, PrivacyType } from '../types';
 import { Controller } from './controller';
-import { UploadService, AuthService, MailService, RoomService } from '../services';
+import {
+    UploadService,
+    AuthService,
+    MailService,
+    RoomService,
+} from '../services';
 import { User } from '../models/user.model';
 import { UPLOAD_DIR, EMAIL_SENDER } from '../config';
 import { Room } from '../models/room.model';
@@ -26,14 +31,21 @@ export class RoomController extends Controller {
         this.router.get('/', this.getRooms.bind(this));
         this.router.get('/:name', this.getRoomDetail.bind(this));
         this.router.post('/:name', this.addDevice.bind(this));
-        this.router.post('/:roomId/device', this.addDevice.bind(this));
-        this.router.patch('/:roomId/device/:deviceId', this.updateDevice.bind(this));
-        this.router.delete('/:roomId/device/:deviceId', this.deleteDevice.bind(this));
+        this.router.post(
+            '/:roomId/device/:deviceId',
+            this.addDevice.bind(this),
+        );
+        // this.router.patch('/:roomId/device/:deviceId', this.updateDevice.bind(this));
+        this.router.delete(
+            '/:roomId/device/:deviceId',
+            this.deleteDevice.bind(this),
+        );
         this.router.get('/:roomId/device', this.getRoomDevices.bind(this));
-        this.router.get('/device/:deviceId', this.getRoomDeviceDetail.bind(this))
+        this.router.get(
+            '/device/:deviceId',
+            this.getRoomDeviceDetail.bind(this),
+        );
     }
-
-
 
     async createRoom(req: Request, res: Response) {
         const room: Room = _.pick(req.body, ['name']) as any;
@@ -46,18 +58,13 @@ export class RoomController extends Controller {
         }
     }
 
-
-
     async updateRoom(req: Request, res: Response) {
         try {
             const roomId = ObjectID.createFromHexString(req.params.roomId);
-            await this.roomService.validateRoom(
-                roomId,
-                req.tokenMeta.userId,
-            );
+            await this.roomService.validateRoom(roomId, req.tokenMeta.userId);
             const affectedCount = await this.roomService.update(
                 roomId,
-                _.pick(req.body, ['name'])
+                _.pick(req.body, ['name']),
             );
             res.composer.success(affectedCount);
         } catch (error) {
@@ -72,9 +79,9 @@ export class RoomController extends Controller {
             await this.roomService.validateRoom(roomId, userId);
             const affectedCount = await this.roomService.delete(roomId);
             if (affectedCount == 0) throw new Error('Room already deleted');
-            res.composer.success(roomId)
+            res.composer.success(roomId);
         } catch (error) {
-            res.composer.badRequest(error.message)
+            res.composer.badRequest(error.message);
         }
     }
 
@@ -104,10 +111,7 @@ export class RoomController extends Controller {
     async addDevice(req: Request, res: Response) {
         try {
             const roomId = ObjectID.createFromHexString(req.params.roomId);
-            await this.roomService.validateRoom(
-                roomId,
-                req.tokenMeta.userId,
-            );
+            await this.roomService.validateRoom(roomId, req.tokenMeta.userId);
             const position = +req.body.position;
             const addedDevice = await this.roomService.addDevice(
                 roomId,
@@ -115,17 +119,14 @@ export class RoomController extends Controller {
             );
             res.composer.success(addedDevice);
         } catch (error) {
-            res.composer.badRequest(error.message)
+            res.composer.badRequest(error.message);
         }
     }
 
     async updateDevice(req: Request, res: Response) {
         try {
             const roomId = ObjectID.createFromHexString(req.params.roomId);
-            await this.roomService.validateRoom(
-                roomId,
-                req.tokenMeta.userId,
-            );
+            await this.roomService.validateRoom(roomId, req.tokenMeta.userId);
             const deviceId = ObjectID.createFromHexString(req.params.deviceId);
             const affectedCount = await this.roomService.updateDevice(
                 deviceId,
@@ -140,10 +141,7 @@ export class RoomController extends Controller {
     async deleteDevice(req: Request, res: Response) {
         try {
             const roomId = ObjectID.createFromHexString(req.params.roomId);
-            await this.roomService.validateRoom(
-                roomId,
-                req.tokenMeta.userId,
-            );
+            await this.roomService.validateRoom(roomId, req.tokenMeta.userId);
 
             const deviceId = ObjectID.createFromHexString(req.params.deviceId);
             const affectedCount = await this.roomService.deleteDevice(
@@ -159,10 +157,7 @@ export class RoomController extends Controller {
     async getRoomDevices(req: Request, res: Response) {
         try {
             const roomId = ObjectID.createFromHexString(req.params.roomId);
-            await this.roomService.validateRoom(
-                roomId,
-                req.tokenMeta.userId,
-            );
+            await this.roomService.validateRoom(roomId, req.tokenMeta.userId);
             const devices = await this.roomService.findDevices(roomId);
             res.composer.success(devices);
         } catch (error) {
@@ -173,15 +168,15 @@ export class RoomController extends Controller {
     async getRoomDeviceDetail(req: Request, res: Response) {
         const deviceId = ObjectID.createFromHexString(req.params.deviceId);
         try {
-            const device = await this.roomService.findOneDeviceDetail({ _id: deviceId });
+            const device = await this.roomService.findOneDeviceDetail({
+                _id: deviceId,
+            });
             if (!device) {
                 res.composer.notFound('Device not found');
             }
             res.composer.success(device);
-
         } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
-
 }

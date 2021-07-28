@@ -10,9 +10,11 @@ export class Device {
     createdBy: ObjectID;
     isDeleted: boolean;
     isWorking: boolean;
-    isLocked: boolean;      // Lock from changing
+    isLocked: boolean; // Lock from changing
     dienNang: number;
     room?: ObjectID;
+    isLoopEvent: boolean;
+    data: string;
 }
 
 export function fillDefaultDeviceValue(device: Device): Device {
@@ -23,6 +25,8 @@ export function fillDefaultDeviceValue(device: Device): Device {
             isLocked: false,
             isDeleted: false,
             isWorking: true,
+            isLoopEvent: false,
+            dienNang: 100,
         },
         device,
     );
