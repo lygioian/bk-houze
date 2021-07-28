@@ -87,6 +87,8 @@ export class MQTTService {
             data: parsedMess.data,
         });
 
+        await this.deviceService.update(device._id, { data: parsedMess.data });
+
         this.socketService.notifyUpdate({
             deviceId: device._id,
             name: deviceName,

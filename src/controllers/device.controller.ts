@@ -5,10 +5,16 @@ import _ from 'lodash';
 import { ObjectID } from 'bson';
 import { Request, Response, ServiceType, PrivacyType } from '../types';
 import { Controller } from './controller';
-import { DeviceService, DeviceStatusService, AuthService, MQTTService } from '../services';
+import {
+    DeviceService,
+    DeviceStatusService,
+    AuthService,
+    MQTTService,
+} from '../services';
 import { SupportedDevices, getDeviceName } from '../config';
 
 import { Device } from '../models/device.model';
+import { triggerAsyncId } from 'async_hooks';
 
 @injectable()
 export class DeviceController extends Controller {
@@ -18,7 +24,8 @@ export class DeviceController extends Controller {
     constructor(
         @inject(ServiceType.MQTT) private mqttService: MQTTService,
         @inject(ServiceType.Device) private deviceService: DeviceService,
-        @inject(ServiceType.DeviceStatus) private deviceStatusService: DeviceStatusService,
+        @inject(ServiceType.DeviceStatus)
+        private deviceStatusService: DeviceStatusService,
         @inject(ServiceType.Auth) private authService: AuthService,
     ) {
         super();
@@ -30,6 +37,7 @@ export class DeviceController extends Controller {
         this.router.post('/control', this.controlDevice.bind(this));
         this.router.post('/lock', this.lockDevice.bind(this));
         this.router.post('/unlock', this.unlockDevice.bind(this));
+        this.router.post('/routine', this.routineDevice.bind(this));
 
         // GET API
         this.router.get('/', this.getDevices.bind(this));
@@ -44,11 +52,10 @@ export class DeviceController extends Controller {
     Create new device of a type ('name')
     */
     async createDevice(req: Request, res: Response) {
-        const device: Device = _.pick(req.body, ['name']) as any;
-        const newDeviceId = await this.deviceService.getNewDeviceId(device.name);
+        const device: Device = _.pick(req.body, ['name', 'id']) as Device;
 
         // Add fields
-        device.id = newDeviceId;
+        // device.id = newDeviceId;
         device.createdBy = req.tokenMeta.userId;
 
         try {
@@ -63,15 +70,14 @@ export class DeviceController extends Controller {
     Control a device via API request
     */
     async controlDevice(req: Request, res: Response) {
-        const device: Device = await this.deviceService.findOneOrCreate({ 
+        const device: Device = await this.deviceService.findOneOrCreate({
             _id: ObjectID.createFromHexString(req.body.id),
         });
         const data: string = req.body.data;
         try {
             this.mqttService.publish(device.id, device.name, data);
-            res.composer.success("Device operated");
-        }
-        catch (error) {
+            res.composer.success('Device operated');
+        } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
@@ -83,8 +89,7 @@ export class DeviceController extends Controller {
         try {
             const devices = await this.deviceService.find();
             res.composer.success(devices);
-        }
-        catch (error) {
+        } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
@@ -97,8 +102,7 @@ export class DeviceController extends Controller {
         try {
             const devices = await this.deviceService.find({ name });
             res.composer.success(devices);
-        }
-        catch (error) {
+        } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
@@ -109,8 +113,10 @@ export class DeviceController extends Controller {
     async getCurrentDeviceStatus(req: Request, res: Response) {
         const deviceId = ObjectID.createFromHexString(req.params.id);
         try {
-            const status = await this.deviceStatusService.find({ deviceId: deviceId });
-            const curr = _.maxBy(status, 'createdAt');      // Get the latest status
+            const status = await this.deviceStatusService.find({
+                deviceId: deviceId,
+            });
+            const curr = _.maxBy(status, 'createdAt'); // Get the latest status
             res.composer.success(curr);
         } catch (error) {
             res.composer.badRequest(error.message);
@@ -123,7 +129,10 @@ export class DeviceController extends Controller {
     async getDeviceStatusHistory(req: Request, res: Response) {
         const deviceId = ObjectID.createFromHexString(req.params.id);
         try {
-            const status = await this.deviceStatusService.find({ deviceId: deviceId }, true);
+            const status = await this.deviceStatusService.find(
+                { deviceId: deviceId },
+                true,
+            );
             res.composer.success(status);
         } catch (error) {
             res.composer.badRequest(error.message);
@@ -147,10 +156,11 @@ export class DeviceController extends Controller {
     */
     async getAllSupportedDevices(req: Request, res: Response) {
         try {
-            const names = SupportedDevices.map((device) => getDeviceName(device));
+            const names = SupportedDevices.map((device) =>
+                getDeviceName(device),
+            );
             res.composer.success(names);
-        }
-        catch (error) {
+        } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
@@ -161,10 +171,11 @@ export class DeviceController extends Controller {
     async lockDevice(req: Request, res: Response) {
         const deviceId = ObjectID.createFromHexString(req.body.id);
         try {
-            const n = await this.deviceService.update(deviceId, { isLocked: true });
+            const n = await this.deviceService.update(deviceId, {
+                isLocked: true,
+            });
             res.composer.success(`${n} Device ${deviceId} is locked`);
-        }
-        catch (error) {
+        } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
@@ -174,10 +185,78 @@ export class DeviceController extends Controller {
     async unlockDevice(req: Request, res: Response) {
         const deviceId = ObjectID.createFromHexString(req.body.id);
         try {
-            const n = await this.deviceService.update(deviceId, { isLocked: false });
+            const n = await this.deviceService.update(deviceId, {
+                isLocked: false,
+            });
             res.composer.success(`${n} Device ${deviceId} is unlocked`);
+        } catch (error) {
+            res.composer.badRequest(error.message);
         }
-        catch (error) {
+    }
+
+    async routineDevice(req: Request, res: Response) {
+        const data: string = req.body.data;
+
+        function cron(ms: any, fn: any, stopfn: any) {
+            function cb() {
+                clearTimeout(timeout);
+                if (stopfn() == true) return;
+
+                timeout = setTimeout(cb, ms);
+                fn();
+            }
+            let timeout = setTimeout(cb, ms);
+            return {};
+        }
+
+        const deviceId = ObjectID.createFromHexString(req.body.id);
+
+        if (req.body.isLoop) {
+            cron(
+                10000,
+                async () => {
+                    const device: Device = await this.deviceService.findOneOrCreate(
+                        {
+                            _id: ObjectID.createFromHexString(req.body.id),
+                        },
+                    );
+                    console.log('Hello Anonystick in middleware ');
+                    console.log(device.data, data, 'Data');
+
+                    if (device.data == data) return;
+                    console.log(device.data, data, 'Data');
+                    this.mqttService.publish(device.id, device.name, data);
+                },
+                async () => {
+                    const n = await this.deviceService.findOne({
+                        _id: deviceId,
+                    });
+                    console.log('Found n');
+                    if (n.isLoopEvent == false) return true;
+                    else return false;
+                },
+            );
+        } else {
+            setTimeout(async () => {
+                const device: Device = await this.deviceService.findOneOrCreate(
+                    {
+                        _id: ObjectID.createFromHexString(req.body.id),
+                    },
+                );
+                this.mqttService.publish(device.id, device.name, data);
+
+                console.log('No Loop');
+            }, 10000);
+        }
+
+        const n = await this.deviceService.update(deviceId, {
+            // data: req.body.data,
+            isLoopEvent: true,
+        });
+
+        try {
+            res.composer.success(`Device ${deviceId} is in Schedule`);
+        } catch (error) {
             res.composer.badRequest(error.message);
         }
     }
