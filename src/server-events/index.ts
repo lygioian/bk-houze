@@ -133,7 +133,10 @@ export class SocketService {
             new AutoLighting(this.deviceService, this.mqttService),
             ['LIGHT'],
         );
-        this.trackingDevice.add(new FireAlarm(), ['TEMP-HUMID', 'GAS']);
+        this.trackingDevice.add(
+            new FireAlarm(this.deviceService, this.mqttService),
+            ['TEMP-HUMID', 'GAS'],
+        );
 
         this.socketIOServer.on('connection', this.onConnection);
     };

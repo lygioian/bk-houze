@@ -1,4 +1,3 @@
-
 import { inject } from 'inversify';
 import { ServiceType } from '../types';
 import { DeviceService, MQTTService } from '../services';
@@ -8,12 +7,12 @@ class AutoLighting {
     constructor(
         private deviceService: DeviceService,
         private mqttService: MQTTService,
-        ) {
-            console.log('[Auto Lightning Management] Construct');
-        }
+    ) {
+        console.log('[Auto Lightning Management] Construct');
+    }
 
     async update(data: any) {
-        const device = await this. deviceService.findOne({
+        const device = await this.deviceService.findOne({
             _id: data.deviceId,
             name: data.name,
         });
@@ -21,9 +20,7 @@ class AutoLighting {
         if (data.data < 100) {
             const ledName = getDeviceName(DeviceTopic.LED);
             this.mqttService.publish(1, ledName, '2');
-        }
-
-        else {
+        } else {
             const ledName = getDeviceName(DeviceTopic.LED);
             this.mqttService.publish(1, ledName, '1');
         }

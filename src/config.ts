@@ -146,7 +146,7 @@ export const SupportedDevices = [
     DeviceTopic.INFRARED,
     DeviceTopic.TIME,
     DeviceTopic.GAS,
-    DeviceTopic.RELAY
+    DeviceTopic.RELAY,
 ];
 
 export const LIMIT_PAGING = 24;

@@ -29,7 +29,7 @@ export class RoomController extends Controller {
         this.router.patch('/:roomId', this.updateRoom.bind(this));
         this.router.delete('/:roomId', this.deleteRoom.bind(this));
         this.router.get('/', this.getRooms.bind(this));
-        this.router.get('/:name', this.getRoomDetail.bind(this));
+        this.router.get('/:roomId', this.getRoomDetail.bind(this));
         this.router.post('/:name', this.addDevice.bind(this));
         this.router.post(
             '/:roomId/device/:deviceId',
